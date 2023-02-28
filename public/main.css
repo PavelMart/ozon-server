@@ -1,0 +1,69 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.loading {
+  position: absolute;
+  display: none;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  background-color: rgba(249, 249, 249, 0.8);
+}
+.loading.active {
+  display: block;
+}
+
+.popup {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.popup.active {
+  display: flex;
+}
+
+.form {
+  text-align: center;
+  padding: 30px;
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  background-color: white;
+}
+
+.form h3 {
+  margin-bottom: 15px;
+}
+
+.form input {
+  margin-bottom: 10px;
+  padding: 5px 10px;
+}
+
+.form button {
+  padding: 5px 10px;
+}
+
+.d-none {
+  display: none;
+}
+
+.c-pointer {
+  background-color: aquamarine;
+  cursor: pointer;
+}

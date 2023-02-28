@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="http://localhost:3000/main.css" />
+  </head>
+  <body>
+    <div id="loading" class="loading"></div>
+    <div class="buttons">
+      <button id="get-data">Получить данные</button>
+      <button id="create-product">Добавить товар</button>
+    </div>
+    <div>
+      <div>Общее количество разных артикулов - <span id="articuls-itog"></span></div>
+      <div>Общее количество к поставке - <span id="count-itog"></span></div>
+      <div>Общей объем, л - <span id="volume-itog"></span></div>
+    </div>
+    <div>
+      <select id="first-step">
+        <option selected disabled>Выберите фильтр</option>
+        <option value="empty">Без фильтра</option>
+        <option value="warehouse">Склад</option>
+        <option value="provider">Поставщик</option>
+        <option value="productTitleProvider">Товар</option>
+      </select>
+      <select style="display: none" id="second-step">
+        <option selected disabled>Выберите фильтр</option>
+        <option value="empty">Без фильтра</option>
+      </select>
+      <button style="display: none" id="get-xlsx">Скачать отчет</button>
+    </div>
+    <table border="true" id="table">
+      <thead>
+        <tr>
+          <th>Добавить в отчет</th>
+          <th>SKU</th>
+          <th>Название товара</th>
+          <th>Название товара на Озон</th>
+          <th>Склад</th>
+          <th>Артикул поставщика</th>
+          <th>Артикул на Озон</th>
+          <th>Поставщик</th>
+          <th>Штук в коробке</th>
+          <th>Минимальное количество на складе</th>
+          <th>Товар в пути</th>
+          <th>В продаже</th>
+          <th>Общее количество</th>
+          <th>К поставке</th>
+          <th>Объем одного товара</th>
+          <th>Общий объем</th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+
+    <div id="popup" class="popup">
+      <form class="form" id="create-product-form">
+        <h3>Добавить товар</h3>
+        <input name="productTitleProvider" type="text" placeholder="Название товара у поставщика" />
+        <input name="productTitleOzon" type="text" placeholder="Название на OZON" />
+        <input name="articleNumberProvider" type="text" placeholder="Артикул поставщика" />
+        <input name="articleNumberOzon" type="text" placeholder="Артикул на Озон" />
+        <input name="provider" type="text" placeholder="Поставщик" />
+        <input name="numberInBox" type="number" placeholder="Штук в коробке" />
+        <input name="volume" type="text" placeholder="Объем в литрах" />
+        <input name="warehouse" type="text" placeholder="Склад" />
+        <input name="minimum" type="number" placeholder="Минимальное количество на складе" />
+        <input name="file" type="file" />
+        <button type="submit">Добавить</button>
+      </form>
+    </div>
+
+    <script src="http://localhost:3000/frontend.js" type="module"></script>
+  </body>
+</html>
