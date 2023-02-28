@@ -117,7 +117,7 @@ const render = (data) => {
 const start = async () => {
   loading.classList.add("active");
 
-  const response = await fetch("http://localhost:3000/api");
+  const response = await fetch("http://141.8.193.46/api");
 
   data = await response.json();
 
@@ -153,7 +153,7 @@ createProductForm.addEventListener("submit", async (e) => {
   popup.classList.remove("active");
   loading.classList.add("active");
 
-  const response = await fetch("http://localhost:3000/api/create-product", {
+  const response = await fetch("http://141.8.193.46/api/create-product", {
     method: "POST",
     body: formData,
   });
@@ -170,8 +170,8 @@ createProductForm.addEventListener("submit", async (e) => {
 });
 
 getXlsxBtn.addEventListener("click", async () => {
-  await fetch(`http://localhost:3000/api/create-book?filterType=${filterType}&filterValue=${filterValue}`);
-  window.open(`http://localhost:3000/${createDate()}-${filterValue.trim()}.xlsx`, "_blank");
+  await fetch(`http://141.8.193.46/api/create-book?filterType=${filterType}&filterValue=${filterValue}`);
+  window.open(`http://141.8.193.46/${createDate()}-${filterValue.trim()}.xlsx`, "_blank");
 });
 
 getDataBtn.addEventListener("click", start);
