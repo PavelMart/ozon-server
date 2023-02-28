@@ -2,8 +2,9 @@ const express = require("express");
 const cors = require("cors");
 const sequelize = require("./db");
 const router = require("./routes");
-const { Product } = require("./models/product.model");
 const path = require("path");
+const errorMiddleware = require("./middleware/errorMiddlware");
+const { Product } = require("./models/product.model");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,6 +20,8 @@ app.use(express.static("public"));
 app.get("/", (req, res) => res.sendFile(path.resolve(__dirname, "index.html")));
 
 app.use("/api", router);
+
+app.use(errorMiddleware);
 
 const start = async () => {
   try {
