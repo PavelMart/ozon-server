@@ -2,7 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../db");
 
 const Product = sequelize.define("product", {
-  SKU: { type: DataTypes.TEXT, defaultValue: 0 },
+  SKU: { type: DataTypes.INTEGER, defaultValue: 0 },
   articleNumberProvider: { type: DataTypes.TEXT, defaultValue: "" },
   articleNumberOzon: { type: DataTypes.TEXT },
   productTitleProvider: { type: DataTypes.TEXT, defaultValue: "" },

@@ -12,7 +12,6 @@ button {
   background-color: transparent;
   border-radius: 3px;
   border: 1px solid coral;
-  transition: all 0.2s ease-in;
 }
 
 button:hover {
@@ -21,10 +20,18 @@ button:hover {
   color: white;
 }
 
+table,
+tr,
 th,
 td {
   text-align: center;
-  padding: 5px 10px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 12px;
+}
+table button {
+  border-radius: 0;
+  border: 1px solid white;
 }
 
 .app-header {
@@ -55,9 +62,9 @@ td {
 }
 
 .popup {
-  overflow: hidden;
+  overflow-y: scroll;
   display: none;
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
@@ -90,6 +97,11 @@ td {
 .form input {
   margin-bottom: 10px;
   padding: 5px 10px;
+}
+
+.form label {
+  text-align: left;
+  margin-bottom: 5px;
 }
 
 .upload-img {

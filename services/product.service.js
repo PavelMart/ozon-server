@@ -33,10 +33,13 @@ class ProductService {
 
   async createProductsFromArray(array) {
     for (let index = 0; index < array.length; index++) {
-      const possibleProduct = await Product.findOne({ where: { articleNumberOzon: array[index].articleNumberOzon } });
+      const possibleProduct = await Product.findOne({
+        where: { articleNumberOzon: array[index].articleNumberOzon, warehouse: array[index].warehouse },
+      });
 
-      if (!possibleProduct) await Product.create({ ...array[index] });
-      else {
+      if (!possibleProduct) {
+        await Product.create({ ...array[index] });
+      } else {
         const calculatedData = this.calculateProductData(possibleProduct, array[index]);
 
         await possibleProduct.update({ ...array[index], ...calculatedData });
@@ -44,7 +47,6 @@ class ProductService {
         await possibleProduct.save();
       }
     }
-
     return;
   }
 
@@ -52,9 +54,6 @@ class ProductService {
     let checked = false;
 
     const fullCount = +obj.productInTransit + +obj.availableToSale;
-
-    console.log(obj.productInTransit);
-    console.log(obj.availableToSale);
 
     let fullDelivery = 0;
     const delivery = +product.minimum - fullCount;
@@ -80,9 +79,6 @@ class ProductService {
     let checked = false;
 
     const fullCount = +obj.productInTransit + +obj.availableToSale;
-
-    console.log(obj.productInTransit);
-    console.log(obj.availableToSale);
 
     let fullDelivery = 0;
     const delivery = +product.minimum - fullCount;

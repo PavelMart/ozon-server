@@ -3,15 +3,15 @@ let filterType = null;
 let filterValue = null;
 let updateProductId = null;
 
-const config = {
-  URL: "http://141.8.193.46",
-  API_URL: `http://141.8.193.46/api`,
-};
-
 // const config = {
-//   URL: "http://localhost:3000",
-//   API_URL: `http://localhost:3000/api`,
+//   URL: "http://141.8.193.46",
+//   API_URL: `http://141.8.193.46/api`,
 // };
+
+const config = {
+  URL: "http://localhost:3000",
+  API_URL: `http://localhost:3000/api`,
+};
 
 const table = document.getElementById("table");
 const tableBody = document.getElementById("table-body");
@@ -157,6 +157,15 @@ uploadXlsxBtn.addEventListener("click", () => {
 tableBody.addEventListener("click", async (e) => {
   if (e.target.closest("#update-product")) {
     updateProductId = +e.target.dataset.id;
+    const updatingData = data.filter((elem) => elem.id === updateProductId)[0];
+
+    updateProductForm.querySelector('input[name="productTitleProvider"]').value = updatingData.productTitleProvider;
+    updateProductForm.querySelector('input[name="articleNumberProvider"]').value = updatingData.articleNumberProvider;
+    updateProductForm.querySelector('input[name="provider"]').value = updatingData.provider;
+    updateProductForm.querySelector('input[name="numberInBox"]').value = updatingData.numberInBox;
+    updateProductForm.querySelector('input[name="volume"]').value = updatingData.volume;
+    updateProductForm.querySelector('input[name="minimum"]').value = updatingData.minimum;
+
     popup.classList.add("active");
   }
   if (e.target.closest(".delivery.highlighted ")) {
