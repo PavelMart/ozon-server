@@ -1,15 +1,19 @@
 let data = null;
 let filterType = null;
 let filterValue = null;
+let updateProductId = null;
 
 const table = document.getElementById("table");
 const tableBody = document.getElementById("table-body");
 const popup = document.getElementById("popup");
+const popupUpload = document.getElementById("popup-upload");
+const popupUpdateDelivery = document.getElementById("popup-update-delivery");
 const loading = document.getElementById("loading");
-const createProductBtn = document.getElementById("create-product");
-const getDataBtn = document.getElementById("get-data");
 const getXlsxBtn = document.getElementById("get-xlsx");
-const createProductForm = document.getElementById("create-product-form");
+const updateProductForm = document.getElementById("update-product-form");
+const updateDeliveryForm = document.getElementById("update-delivery-form");
+const uploadXlsxBtn = document.getElementById("upload-xlsx");
+const uploadXlsxForm = document.getElementById("upload-xlsx-form");
 const articulsItog = document.getElementById("articuls-itog");
 const countItog = document.getElementById("count-itog");
 const volumeItog = document.getElementById("volume-itog");
@@ -24,7 +28,7 @@ const arrayRender = (array, templateCallback) => {
 };
 
 const filter = (type, value) => {
-  return data.filter((i) => i[type] === value);
+  return data.filter((i) => i[type] === value && i.checked === true);
 };
 
 const createDate = () => {
@@ -65,17 +69,17 @@ const renderCalculateData = () => {
 
   articulsItog.textContent = articuls;
   countItog.textContent = count;
-  volumeItog.textContent = volume;
+  volumeItog.textContent = volume.toFixed(3);
 };
 
 const renderTableBody = (items) => {
   const rows = arrayRender(items, (i) => {
     return `
-    <tr class="table-row" data-id="${i.id}">
-      <td><input type="checkbox" checked></td>
-      <td class="SKU ">${i.SKU}</td>
+    <tr class="table-row" >
+      <td><input type="checkbox" ${i.checked ? "checked" : ""} data-id=${i.id}></td>
+      <td class="SKU d-none">${i.SKU}</td>
       <td class="productTitleProvider">${i.productTitleProvider}</td>
-      <td class="productTitleOzon ">${i.productTitleOzon}</td>
+      <td class="productTitleOzon d-none">${i.productTitleOzon}</td>
       <td class="warehouse">${i.warehouse}</td>
       <td class="articleNumberProvider">${i.articleNumberProvider}</td>
       <td class="articleNumberOzon ">${i.articleNumberOzon}</td>
@@ -85,9 +89,10 @@ const renderTableBody = (items) => {
       <td class="productInTransit">${i.productInTransit}</td>
       <td class="availableToSale">${i.availableToSale}</td>
       <td class="fullCount">${i.fullCount}</td>
-      <td class="delivery">${i.delivery}</td>
-      <td class="volume ">${i.volume}</td>
-      <td class="volume-summ">${i.volume * i.delivery}</td>
+      <td class="delivery ${+i.delivery === 0 ? "" : "highlighted c-pointer"}" data-id=${i.id}>${i.delivery}</td>
+      <td class="volume">${i.volume}</td>
+      <td class="volume-summ">${(i.volume * i.delivery).toFixed(3)}</td>
+      <td class="update"><button id="update-product" data-id="${i.id}">Редактировать</button></td>
     </tr>
   `;
   });
@@ -126,20 +131,42 @@ const start = async () => {
   render(data);
 };
 
-table.addEventListener("click", (e) => {
-  if (e.target.closest('input[type="checkbox"]')) renderCalculateData();
+uploadXlsxBtn.addEventListener("click", () => {
+  popupUpload.classList.add("active");
 });
 
-createProductBtn.addEventListener("click", () => {
-  popup.classList.add("active");
-  formFirstInput.focus();
+tableBody.addEventListener("click", async (e) => {
+  if (e.target.closest("#update-product")) {
+    updateProductId = +e.target.dataset.id;
+    popup.classList.add("active");
+    formFirstInput.focus();
+  }
+  if (e.target.closest(".delivery.highlighted ")) {
+    updateProductId = +e.target.dataset.id;
+    popupUpdateDelivery.classList.add("active");
+  }
+  if (e.target.closest(`input[type="checkbox"]`)) {
+    const id = e.target.dataset.id;
+    const checked = e.target.checked;
+    const response = await fetch(`http://141.8.193.46/api/update-checked/${id}?checked=${checked}`);
+    data = await response.json();
+    render(data);
+  }
 });
 
 popup.addEventListener("click", (e) => {
   if (!e.target.closest(".form")) popup.classList.remove("active");
 });
 
-createProductForm.addEventListener("submit", async (e) => {
+popupUpload.addEventListener("click", (e) => {
+  if (!e.target.closest(".form")) popupUpload.classList.remove("active");
+});
+
+popupUpdateDelivery.addEventListener("click", (e) => {
+  if (!e.target.closest(".form")) popupUpdateDelivery.classList.remove("active");
+});
+
+updateProductForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const inputs = document.querySelectorAll(".form input[type='text']");
@@ -153,16 +180,54 @@ createProductForm.addEventListener("submit", async (e) => {
   popup.classList.remove("active");
   loading.classList.add("active");
 
-  const response = await fetch("http://141.8.193.46/api/create-product", {
+  const response = await fetch(`http://141.8.193.46/api/update-product/${updateProductId}`, {
     method: "POST",
     body: formData,
   });
 
   data = await response.json();
 
-  const inputElems = createProductForm.querySelectorAll("input");
+  const inputElems = updateProductForm.querySelectorAll("input");
 
   [...inputElems].forEach((i) => (i.value = ""));
+
+  loading.classList.remove("active");
+
+  render(data);
+});
+
+updateDeliveryForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(e.target);
+
+  const delivery = formData.get("update-delivery");
+
+  popupUpdateDelivery.classList.remove("active");
+  loading.classList.add("active");
+
+  const response = await fetch(`http://141.8.193.46/api/update-delivery/${updateProductId}?delivery=${delivery}`);
+
+  data = await response.json();
+
+  loading.classList.remove("active");
+
+  render(data);
+});
+
+uploadXlsxForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+
+  popupUpload.classList.remove("active");
+  loading.classList.add("active");
+
+  const response = await fetch("http://141.8.193.46/api/upload-xlsx", {
+    method: "POST",
+    body: formData,
+  });
+
+  data = await response.json();
 
   loading.classList.remove("active");
 
@@ -174,14 +239,14 @@ getXlsxBtn.addEventListener("click", async () => {
   window.open(`http://141.8.193.46/${createDate()}-${filterValue.trim()}.xlsx`, "_blank");
 });
 
-getDataBtn.addEventListener("click", start);
-
 firstSelect.addEventListener("change", (e) => {
   filterType = e.target.value;
   if (filterType === "empty") {
     getXlsxBtn.style.display = "none";
     secondSelect.style.display = "none";
-    return renderTableBody(data);
+    renderTableBody(data);
+    renderCalculateData();
+    return;
   }
 
   getXlsxBtn.style.display = "none";
@@ -196,9 +261,11 @@ secondSelect.addEventListener("change", (e) => {
     getXlsxBtn.style.display = "none";
     return renderTableBody(data);
   }
+  const filteredData = filter(filterType, filterValue);
 
-  getXlsxBtn.style.display = "";
-  renderTableBody(filter(filterType, filterValue));
+  if (filterType === "productTitleProvider" || !filteredData.length) getXlsxBtn.style.display = "none";
+  else getXlsxBtn.style.display = "";
+  renderTableBody(filteredData);
   renderCalculateData();
 });
 

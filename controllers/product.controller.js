@@ -1,4 +1,5 @@
 const formidable = require("formidable");
+const bookService = require("../services/book.service");
 const productService = require("../services/product.service");
 
 class ProductController {
@@ -19,10 +20,53 @@ class ProductController {
     }
   }
 
-  async getAll(req, res) {
-    const products = await productService.getProducts();
+  async updateProduct(req, res) {
+    try {
+      await productService.updateProduct(req.params.id, req.body);
+      const products = await productService.getProducts();
+      return res.json(products);
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
 
-    return res.json(products);
+  async updateChecked(req, res) {
+    try {
+      await productService.updateChecked(req.params.id, req.query.checked);
+      const products = await productService.getProducts();
+      return res.json(products);
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async updateDelivery(req, res) {
+    try {
+      await productService.updateDelivery(req.params.id, req.query.delivery);
+      const products = await productService.getProducts();
+      return res.json(products);
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async getAll(req, res) {
+    try {
+      const products = await productService.getProducts();
+      return res.json(products);
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async uploadXlsx(req, res) {
+    try {
+      const { xlsx } = req.files;
+      const products = await bookService.readBook(xlsx);
+      return res.json(products);
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 }
 

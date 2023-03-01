@@ -3,6 +3,7 @@ const cors = require("cors");
 const sequelize = require("./db");
 const router = require("./routes");
 const path = require("path");
+const fileUpload = require("express-fileupload");
 const errorMiddleware = require("./middleware/errorMiddlware");
 const { Product } = require("./models/product.model");
 
@@ -16,6 +17,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static("public"));
+
+app.use(fileUpload({}));
 
 app.get("/", (req, res) => res.sendFile(path.resolve(__dirname, "index.html")));
 

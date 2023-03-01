@@ -1,18 +1,17 @@
-const { utils, writeFile, write } = require("xlsx");
+const { utils, write, read, readFile } = require("xlsx");
 const { writeFileSync } = require("fs");
 const productService = require("./product.service");
+const path = require("path");
 
 class BookService {
   async createBook(filter) {
     const workbook = utils.book_new();
 
-    console.log(filter);
-
     const products = await productService.getProducts(filter);
 
-    console.log("products", products);
+    const filteredProducts = products.filter((p) => p.checked);
 
-    const productsData = products.map((p) => {
+    const productsData = filteredProducts.map((p) => {
       const arr = [];
       const data = p.dataValues;
 
@@ -52,6 +51,39 @@ class BookService {
     const monthText = createText(month + 1);
 
     return `${dayText}-${monthText}`;
+  }
+
+  async readBook(file) {
+    try {
+      const filePath = path.join(__dirname, "..", "public", "input.xlsx");
+      file.mv(filePath);
+
+      const workbook = readFile(filePath);
+
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+
+      const sheetJSON = utils.sheet_to_json(sheet);
+
+      const arrayForBd = sheetJSON.map((elem) => ({
+        SKU: elem.SKU,
+        warehouse: elem["Название склада"],
+        articleNumberOzon: elem["Артикул"],
+        productTitleOzon: elem["Название товара"],
+        productInTransit: elem["Товары в пути"],
+        availableToSale: elem["Доступный к продаже товар"],
+        reserve: elem["Резерв"],
+      }));
+
+      for (let index = 0; index < arrayForBd.length; index++) {
+        await productService.createProduct(arrayForBd[index]);
+      }
+
+      const products = await productService.getProducts();
+
+      return products;
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 }
 

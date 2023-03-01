@@ -2,62 +2,74 @@ const Product = require("../models/product.model");
 const axios = require("axios");
 
 class ProductService {
-  async createProduct(data) {
+  async createProduct(obj) {
     try {
-      const { fields, files } = data;
+      const possibleProduct = await Product.findOne({ where: { articleNumberOzon: obj.articleNumberOzon } });
 
-      const instance = axios.create({
-        baseURL: "https://api-seller.ozon.ru",
-      });
-
-      instance.defaults.headers.common["Client-Id"] = "576811";
-      instance.defaults.headers.common["Api-Key"] = "0a3268fe-ff2f-4b38-a05d-3a161297e885";
-      instance.defaults.headers.common["Content-Type"] = "application/json";
-
-      const response = await instance.post("/v2/product/info/list", {
-        offer_id: [fields.articleNumberOzon],
-      });
-
-      const productFromOzon = response.data.result.items[0];
-
-      const fullCount = +productFromOzon.stocks.coming + +productFromOzon.stocks.present;
-
-      let fullDelivery = 0;
-      const delivery = +fields.minimum - fullCount;
-
-      if (delivery > 0) {
-        const boxesCount = Math.floor(delivery / fields.numberInBox);
-
-        fullDelivery = boxesCount * fields.numberInBox;
-
-        if (fullDelivery < delivery) fullDelivery = (boxesCount + 1) * fields.numberInBox;
+      if (possibleProduct) {
+        return possibleProduct;
       }
 
-      const obj = {
-        ...fields,
-        SKU: productFromOzon.fbo_sku,
-        productInTransit: productFromOzon.stocks.coming,
-        availableToSale: productFromOzon.stocks.present,
-        reserve: productFromOzon.stocks.reserved,
-        fullCount,
-        delivery: fullDelivery,
-      };
+      const product = await Product.create({ ...obj });
 
-      await Product.create({ ...obj });
-
-      const responseData = await this.getProducts();
-      return responseData;
+      return product;
     } catch (error) {
-      console.log(error);
       throw new Error(error.message);
     }
+  }
+
+  async updateProduct(id, obj) {
+    const product = await Product.findOne({ where: { id } });
+
+    let checked = false;
+
+    const fullCount = +product.productInTransit + +product.availableToSale;
+
+    let fullDelivery = 0;
+    const delivery = +obj.minimum - fullCount;
+
+    if (delivery > 0) {
+      const boxesCount = Math.floor(delivery / obj.numberInBox);
+
+      fullDelivery = boxesCount * obj.numberInBox;
+
+      if (fullDelivery < delivery) fullDelivery = (boxesCount + 1) * obj.numberInBox;
+    }
+
+    if (fullDelivery !== 0) checked = true;
+
+    await product.update({ ...obj, fullCount, checked, delivery: fullDelivery });
+
+    await product.save();
+
+    return;
+  }
+
+  async updateChecked(id, checked) {
+    const product = await Product.findOne({ where: { id } });
+
+    await product.update({ checked });
+
+    await product.save();
+
+    return;
+  }
+
+  async updateDelivery(id, delivery) {
+    const product = await Product.findOne({ where: { id } });
+
+    await product.update({ delivery });
+
+    await product.save();
+
+    return;
   }
 
   async getProducts(filter = null) {
     let products = null;
 
-    if (filter) products = await Product.findAll({ where: { [filter.filterType]: filter.filterValue } });
-    else products = await Product.findAll();
+    if (filter) products = await Product.findAll({ where: { [filter.filterType]: filter.filterValue }, order: ["id"] });
+    else products = await Product.findAll({ order: ["id"] });
 
     return products;
   }
