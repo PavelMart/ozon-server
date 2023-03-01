@@ -22,7 +22,12 @@ class ProductController {
 
   async updateProduct(req, res) {
     try {
-      await productService.updateProduct(req.params.id, req.body);
+      const {
+        params: { id },
+        body,
+        files: { img },
+      } = req;
+      await productService.updateProduct(id, body, img);
       const products = await productService.getProducts();
       return res.json(products);
     } catch (error) {

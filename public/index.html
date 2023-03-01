@@ -41,6 +41,7 @@
           <tr>
             <th>Добавить в отчет</th>
             <th class="d-none">SKU</th>
+            <th>Изображение</th>
             <th>Название товара</th>
             <th class="d-none">Название товара на Озон</th>
             <th>Склад</th>
@@ -70,6 +71,10 @@
           <input name="numberInBox" type="number" placeholder="Штук в коробке" />
           <input name="volume" type="text" placeholder="Объем в литрах" />
           <input name="minimum" type="number" placeholder="Минимальное количество на складе" />
+          <div class="upload-img">
+            <label for="img">Добавить изображение</label>
+            <input name="img" id="img" type="file" />
+          </div>
           <button type="submit">Добавить</button>
         </form>
       </div>

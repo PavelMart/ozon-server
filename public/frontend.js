@@ -3,6 +3,10 @@ let filterType = null;
 let filterValue = null;
 let updateProductId = null;
 
+const config = {
+  API_URL: "http://141.8.193.46/api",
+};
+
 const table = document.getElementById("table");
 const tableBody = document.getElementById("table-body");
 const popup = document.getElementById("popup");
@@ -78,6 +82,9 @@ const renderTableBody = (items) => {
     <tr class="table-row" >
       <td><input type="checkbox" ${i.checked ? "checked" : ""} data-id=${i.id}></td>
       <td class="SKU d-none">${i.SKU}</td>
+      <td class="product-img">
+            ${i.img ? `<img src="${i.img}" alt="${i.articleNumberOzon}" width="50" height="50">` : "Нет изображения"}
+      </td>
       <td class="productTitleProvider">${i.productTitleProvider}</td>
       <td class="productTitleOzon d-none">${i.productTitleOzon}</td>
       <td class="warehouse">${i.warehouse}</td>
@@ -122,7 +129,7 @@ const render = (data) => {
 const start = async () => {
   loading.classList.add("active");
 
-  const response = await fetch("http://141.8.193.46/api");
+  const response = await fetch(`${config.API_URL}`);
 
   data = await response.json();
 
@@ -148,7 +155,7 @@ tableBody.addEventListener("click", async (e) => {
   if (e.target.closest(`input[type="checkbox"]`)) {
     const id = e.target.dataset.id;
     const checked = e.target.checked;
-    const response = await fetch(`http://141.8.193.46/api/update-checked/${id}?checked=${checked}`);
+    const response = await fetch(`${config.API_URL}/update-checked/${id}?checked=${checked}`);
     data = await response.json();
     render(data);
   }
@@ -180,7 +187,7 @@ updateProductForm.addEventListener("submit", async (e) => {
   popup.classList.remove("active");
   loading.classList.add("active");
 
-  const response = await fetch(`http://141.8.193.46/api/update-product/${updateProductId}`, {
+  const response = await fetch(`${config.API_URL}/update-product/${updateProductId}`, {
     method: "POST",
     body: formData,
   });
@@ -206,7 +213,7 @@ updateDeliveryForm.addEventListener("submit", async (e) => {
   popupUpdateDelivery.classList.remove("active");
   loading.classList.add("active");
 
-  const response = await fetch(`http://141.8.193.46/api/update-delivery/${updateProductId}?delivery=${delivery}`);
+  const response = await fetch(`${config.API_URL}/update-delivery/${updateProductId}?delivery=${delivery}`);
 
   data = await response.json();
 
@@ -222,7 +229,7 @@ uploadXlsxForm.addEventListener("submit", async (e) => {
   popupUpload.classList.remove("active");
   loading.classList.add("active");
 
-  const response = await fetch("http://141.8.193.46/api/upload-xlsx", {
+  const response = await fetch(`${config.API_URL}/upload-xlsx`, {
     method: "POST",
     body: formData,
   });
@@ -235,8 +242,8 @@ uploadXlsxForm.addEventListener("submit", async (e) => {
 });
 
 getXlsxBtn.addEventListener("click", async () => {
-  await fetch(`http://141.8.193.46/api/create-book?filterType=${filterType}&filterValue=${filterValue}`);
-  window.open(`http://141.8.193.46/${createDate()}-${filterValue.trim()}.xlsx`, "_blank");
+  await fetch(`${config.API_URL}/create-book?filterType=${filterType}&filterValue=${filterValue}`);
+  window.open(`${config.API_URL}/${createDate()}-${filterValue.trim()}.xlsx`, "_blank");
 });
 
 firstSelect.addEventListener("change", (e) => {

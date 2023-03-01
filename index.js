@@ -1,3 +1,4 @@
+const dotenv = require("dotenv");
 const express = require("express");
 const cors = require("cors");
 const sequelize = require("./db");
@@ -6,6 +7,8 @@ const path = require("path");
 const fileUpload = require("express-fileupload");
 const errorMiddleware = require("./middleware/errorMiddlware");
 const { Product } = require("./models/product.model");
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;

@@ -18,6 +18,7 @@ const Product = sequelize.define("product", {
   fullCount: { type: DataTypes.TEXT, defaultValue: 0 },
   delivery: { type: DataTypes.TEXT, defaultValue: 0 },
   checked: { type: DataTypes.BOOLEAN, defaultValue: false },
+  img: { type: DataTypes.TEXT },
 });
 
 module.exports = Product;

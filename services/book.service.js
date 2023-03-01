@@ -2,6 +2,7 @@ const { utils, write, read, readFile } = require("xlsx");
 const { writeFileSync } = require("fs");
 const productService = require("./product.service");
 const path = require("path");
+const uuid = require("uuid");
 
 class BookService {
   async createBook(filter) {
@@ -55,8 +56,9 @@ class BookService {
 
   async readBook(file) {
     try {
-      const filePath = path.join(__dirname, "..", "public", "input.xlsx");
-      file.mv(filePath);
+      const filePath = path.join(__dirname, "..", "public", `input.xlsx`);
+
+      await file.mv(filePath);
 
       const workbook = readFile(filePath);
 

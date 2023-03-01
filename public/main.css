@@ -91,6 +91,18 @@ td {
   padding: 5px 10px;
 }
 
+.upload-img {
+  display: flex;
+  flex-direction: column;
+}
+
+.upload-img label,
+.upload-img input {
+  padding: 0;
+  text-align: left;
+  margin-bottom: 10px;
+}
+
 .d-none {
   display: none;
 }

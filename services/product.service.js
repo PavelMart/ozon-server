@@ -1,5 +1,6 @@
 const Product = require("../models/product.model");
-const axios = require("axios");
+const path = require("path");
+const uuid = require("uuid");
 
 class ProductService {
   async createProduct(obj) {
@@ -18,8 +19,15 @@ class ProductService {
     }
   }
 
-  async updateProduct(id, obj) {
+  async updateProduct(id, obj, img) {
     const product = await Product.findOne({ where: { id } });
+
+    const ext = img.name.split(".").pop();
+    const fullName = `${uuid.v4()}.${ext}`;
+
+    const filePath = path.join(__dirname, "..", "public", fullName);
+
+    img.mv(filePath);
 
     let checked = false;
 
@@ -38,7 +46,7 @@ class ProductService {
 
     if (fullDelivery !== 0) checked = true;
 
-    await product.update({ ...obj, fullCount, checked, delivery: fullDelivery });
+    await product.update({ ...obj, fullCount, checked, delivery: fullDelivery, img: fullName });
 
     await product.save();
 
