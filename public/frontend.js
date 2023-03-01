@@ -4,7 +4,8 @@ let filterValue = null;
 let updateProductId = null;
 
 const config = {
-  API_URL: "http://141.8.193.46/api",
+  URL: "http://141.8.193.46",
+  API_URL: `http://141.8.193.46/api`,
 };
 
 const table = document.getElementById("table");
@@ -242,8 +243,10 @@ uploadXlsxForm.addEventListener("submit", async (e) => {
 });
 
 getXlsxBtn.addEventListener("click", async () => {
+  loading.classList.add("active");
   await fetch(`${config.API_URL}/create-book?filterType=${filterType}&filterValue=${filterValue}`);
-  window.open(`${config.API_URL}/${createDate()}-${filterValue.trim()}.xlsx`, "_blank");
+  window.open(`${config.URL}/${createDate()}-${filterValue.trim()}.xlsx`, "_blank");
+  loading.classList.remove("active");
 });
 
 firstSelect.addEventListener("change", (e) => {
