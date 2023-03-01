@@ -1,9 +1,10 @@
 const formidable = require("formidable");
+const ApiError = require("../api/ApiError");
 const bookService = require("../services/book.service");
 const productService = require("../services/product.service");
 
 class ProductController {
-  createProduct(req, res) {
+  createProduct(req, res, next) {
     try {
       const form = formidable({ multiples: true });
 
@@ -16,11 +17,11 @@ class ProductController {
         return res.json(data);
       });
     } catch (error) {
-      throw new Error(error.message);
+      return next(ApiError.BadRequest(error.message));
     }
   }
 
-  async updateProduct(req, res) {
+  async updateProduct(req, res, next) {
     try {
       const {
         params: { id },
@@ -31,46 +32,46 @@ class ProductController {
       const products = await productService.getProducts();
       return res.json(products);
     } catch (error) {
-      throw new Error(error.message);
+      return next(ApiError.BadRequest(error.message));
     }
   }
 
-  async updateChecked(req, res) {
+  async updateChecked(req, res, next) {
     try {
       await productService.updateChecked(req.params.id, req.query.checked);
       const products = await productService.getProducts();
       return res.json(products);
     } catch (error) {
-      throw new Error(error.message);
+      return next(ApiError.BadRequest(error.message));
     }
   }
 
-  async updateDelivery(req, res) {
+  async updateDelivery(req, res, next) {
     try {
       await productService.updateDelivery(req.params.id, req.query.delivery);
       const products = await productService.getProducts();
       return res.json(products);
     } catch (error) {
-      throw new Error(error.message);
+      return next(ApiError.BadRequest(error.message));
     }
   }
 
-  async getAll(req, res) {
+  async getAll(req, res, next) {
     try {
       const products = await productService.getProducts();
       return res.json(products);
     } catch (error) {
-      throw new Error(error.message);
+      return next(ApiError.BadRequest(error.message));
     }
   }
 
-  async uploadXlsx(req, res) {
+  async uploadXlsx(req, res, next) {
     try {
       const { xlsx } = req.files;
       const products = await bookService.readBook(xlsx);
       return res.json(products);
     } catch (error) {
-      throw new Error(error.message);
+      return next(ApiError.BadRequest(error.message));
     }
   }
 }

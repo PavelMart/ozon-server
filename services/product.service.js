@@ -1,6 +1,7 @@
 const Product = require("../models/product.model");
 const path = require("path");
 const uuid = require("uuid");
+const ApiError = require("../api/ApiError");
 
 class ProductService {
   async createProduct(obj) {
@@ -15,7 +16,7 @@ class ProductService {
 
       return product;
     } catch (error) {
-      throw new Error(error.message);
+      throw ApiError.BadRequest(error.message);
     }
   }
 
@@ -53,7 +54,7 @@ class ProductService {
 
       return;
     } catch (error) {
-      throw new Error(error.message);
+      throw ApiError.BadRequest(error.message);
     }
   }
 
@@ -67,7 +68,7 @@ class ProductService {
 
       return;
     } catch (error) {
-      throw new Error(error.message);
+      throw ApiError.BadRequest(error.message);
     }
   }
 
@@ -81,7 +82,7 @@ class ProductService {
 
       return;
     } catch (error) {
-      throw new Error(error.message);
+      throw ApiError.BadRequest(error.message);
     }
   }
 
@@ -94,7 +95,7 @@ class ProductService {
 
       return products;
     } catch (error) {
-      throw new Error(error.message);
+      throw ApiError.BadRequest(error.message);
     }
   }
 }

@@ -12,8 +12,7 @@
       <div id="loading" class="loading"></div>
       <div class="app-header">
         <div class="buttons">
-          <!-- <button id="get-data">Получить данные</button> -->
-          <button class="d-none" id="create-product">Добавить товар</button>
+          <button id="create-product">Добавить товар</button>
           <button id="upload-xlsx">Загрузить Excel</button>
         </div>
         <div>
@@ -66,6 +65,24 @@
         <form class="form" id="update-product-form">
           <h3>Добавить товар</h3>
           <input name="productTitleProvider" type="text" placeholder="Название товара у поставщика" />
+          <input name="articleNumberProvider" type="text" placeholder="Артикул поставщика" />
+          <input name="provider" type="text" placeholder="Поставщик" />
+          <input name="numberInBox" type="number" placeholder="Штук в коробке" />
+          <input name="volume" type="text" placeholder="Объем в литрах" />
+          <input name="minimum" type="number" placeholder="Минимальное количество на складе" />
+          <div class="upload-img">
+            <label for="img">Добавить изображение</label>
+            <input name="img" id="img" type="file" />
+          </div>
+          <button type="submit">Добавить</button>
+        </form>
+      </div>
+
+      <div id="create-product-popup" class="popup">
+        <form class="form" id="update-product-form">
+          <h3>Добавить товар</h3>
+          <input name="productTitleProvider" type="text" placeholder="Название товара у поставщика" />
+          <input name="productTitleOzon" type="text" placeholder="Название товара Ozon" />
           <input name="articleNumberProvider" type="text" placeholder="Артикул поставщика" />
           <input name="provider" type="text" placeholder="Поставщик" />
           <input name="numberInBox" type="number" placeholder="Штук в коробке" />

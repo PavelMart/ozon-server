@@ -232,23 +232,27 @@ uploadXlsxForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const formData = new FormData(e.target);
 
-  const ext = formData.get("xlsx").name.split(".").pop();
+  try {
+    const ext = formData.get("xlsx").name.split(".").pop();
 
-  if (ext !== "xlsx") return alert("Неверное расширение файла");
+    if (ext !== "xlsx") return alert("Неверное расширение файла");
 
-  popupUpload.classList.remove("active");
-  loading.classList.add("active");
+    popupUpload.classList.remove("active");
+    loading.classList.add("active");
 
-  const response = await fetch(`${config.API_URL}/upload-xlsx`, {
-    method: "POST",
-    body: formData,
-  });
+    const response = await fetch(`${config.API_URL}/upload-xlsx`, {
+      method: "POST",
+      body: formData,
+    });
 
-  data = await response.json();
+    data = await response.json();
 
-  loading.classList.remove("active");
+    loading.classList.remove("active");
 
-  render(data);
+    render(data);
+  } catch (error) {
+    return alert(`Файл не был загружен, ${error.message}`);
+  }
 });
 
 getXlsxBtn.addEventListener("click", async () => {

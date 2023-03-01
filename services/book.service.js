@@ -3,6 +3,7 @@ const { writeFileSync } = require("fs");
 const productService = require("./product.service");
 const path = require("path");
 const uuid = require("uuid");
+const ApiError = require("../api/ApiError");
 
 class BookService {
   async createBook(filter) {
@@ -41,7 +42,7 @@ class BookService {
 
       return;
     } catch (error) {
-      throw new Error(error.message);
+      throw ApiError.BadRequest(error.message);
     }
   }
 
@@ -88,7 +89,7 @@ class BookService {
 
       return products;
     } catch (error) {
-      throw new Error(error.message);
+      throw ApiError.BadRequest(error.message);
     }
   }
 }
