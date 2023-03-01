@@ -20,66 +20,82 @@ class ProductService {
   }
 
   async updateProduct(id, obj, img) {
-    const product = await Product.findOne({ where: { id } });
+    try {
+      const product = await Product.findOne({ where: { id } });
 
-    const ext = img.name.split(".").pop();
-    const fullName = `${uuid.v4()}.${ext}`;
+      const ext = img.name.split(".").pop();
+      const fullName = `${uuid.v4()}.${ext}`;
 
-    const filePath = path.join(__dirname, "..", "public", fullName);
+      const filePath = path.join(__dirname, "..", "public", fullName);
 
-    img.mv(filePath);
+      img.mv(filePath);
 
-    let checked = false;
+      let checked = false;
 
-    const fullCount = +product.productInTransit + +product.availableToSale;
+      const fullCount = +product.productInTransit + +product.availableToSale;
 
-    let fullDelivery = 0;
-    const delivery = +obj.minimum - fullCount;
+      let fullDelivery = 0;
+      const delivery = +obj.minimum - fullCount;
 
-    if (delivery > 0) {
-      const boxesCount = Math.floor(delivery / obj.numberInBox);
+      if (delivery > 0) {
+        const boxesCount = Math.floor(delivery / obj.numberInBox);
 
-      fullDelivery = boxesCount * obj.numberInBox;
+        fullDelivery = boxesCount * obj.numberInBox;
 
-      if (fullDelivery < delivery) fullDelivery = (boxesCount + 1) * obj.numberInBox;
+        if (fullDelivery < delivery) fullDelivery = (boxesCount + 1) * obj.numberInBox;
+      }
+
+      if (fullDelivery !== 0) checked = true;
+
+      await product.update({ ...obj, fullCount, checked, delivery: fullDelivery, img: fullName });
+
+      await product.save();
+
+      return;
+    } catch (error) {
+      throw new Error(error.message);
     }
-
-    if (fullDelivery !== 0) checked = true;
-
-    await product.update({ ...obj, fullCount, checked, delivery: fullDelivery, img: fullName });
-
-    await product.save();
-
-    return;
   }
 
   async updateChecked(id, checked) {
-    const product = await Product.findOne({ where: { id } });
+    try {
+      const product = await Product.findOne({ where: { id } });
 
-    await product.update({ checked });
+      await product.update({ checked });
 
-    await product.save();
+      await product.save();
 
-    return;
+      return;
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 
   async updateDelivery(id, delivery) {
-    const product = await Product.findOne({ where: { id } });
+    try {
+      const product = await Product.findOne({ where: { id } });
 
-    await product.update({ delivery });
+      await product.update({ delivery });
 
-    await product.save();
+      await product.save();
 
-    return;
+      return;
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 
   async getProducts(filter = null) {
-    let products = null;
+    try {
+      let products = null;
 
-    if (filter) products = await Product.findAll({ where: { [filter.filterType]: filter.filterValue }, order: ["id"] });
-    else products = await Product.findAll({ order: ["id"] });
+      if (filter) products = await Product.findAll({ where: { [filter.filterType]: filter.filterValue }, order: ["id"] });
+      else products = await Product.findAll({ order: ["id"] });
 
-    return products;
+      return products;
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 }
 

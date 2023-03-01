@@ -8,6 +8,11 @@ const config = {
   API_URL: `http://141.8.193.46/api`,
 };
 
+// const config = {
+//   URL: "http://localhost:3000",
+//   API_URL: `http://localhost:3000/api`,
+// };
+
 const table = document.getElementById("table");
 const tableBody = document.getElementById("table-body");
 const popup = document.getElementById("popup");
@@ -226,6 +231,10 @@ updateDeliveryForm.addEventListener("submit", async (e) => {
 uploadXlsxForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const formData = new FormData(e.target);
+
+  const ext = formData.get("xlsx").name.split(".").pop();
+
+  if (ext !== "xlsx") return alert("Неверное расширение файла");
 
   popupUpload.classList.remove("active");
   loading.classList.add("active");

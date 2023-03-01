@@ -3,9 +3,13 @@ const path = require("path");
 
 class BookController {
   async createBook(req, res) {
-    const { filterType, filterValue } = req.query;
-    await bookService.createBook({ filterType, filterValue });
-    return res.json("Отчет сформирован");
+    try {
+      const { filterType, filterValue } = req.query;
+      await bookService.createBook({ filterType, filterValue });
+      return res.json("Отчет сформирован");
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 }
 
