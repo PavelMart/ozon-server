@@ -63,36 +63,38 @@
 
       <div id="popup" class="popup">
         <form class="form" id="update-product-form">
-          <h3>Добавить товар</h3>
-          <input name="productTitleProvider" type="text" placeholder="Название товара у поставщика" />
-          <input name="articleNumberProvider" type="text" placeholder="Артикул поставщика" />
-          <input name="provider" type="text" placeholder="Поставщик" />
-          <input name="numberInBox" type="number" placeholder="Штук в коробке" />
-          <input name="volume" type="text" placeholder="Объем в литрах" />
-          <input name="minimum" type="number" placeholder="Минимальное количество на складе" />
+          <h3>Редактировать</h3>
+          <input required name="productTitleProvider" type="text" placeholder="Название товара у поставщика" />
+          <input required name="articleNumberProvider" type="text" placeholder="Артикул поставщика" />
+          <input required name="provider" type="text" placeholder="Поставщик" />
+          <input required name="numberInBox" type="number" placeholder="Штук в коробке" />
+          <input required name="volume" type="text" placeholder="Объем в литрах" />
+          <input required name="minimum" type="number" placeholder="Минимальное количество на складе" />
           <div class="upload-img">
             <label for="img">Добавить изображение</label>
             <input name="img" id="img" type="file" />
           </div>
-          <button type="submit">Добавить</button>
+          <button type="submit">Отправить</button>
         </form>
       </div>
 
-      <div id="create-product-popup" class="popup">
-        <form class="form" id="update-product-form">
+      <div id="popup-create-product" class="popup">
+        <form class="form" id="create-product-form">
           <h3>Добавить товар</h3>
-          <input name="productTitleProvider" type="text" placeholder="Название товара у поставщика" />
-          <input name="productTitleOzon" type="text" placeholder="Название товара Ozon" />
-          <input name="articleNumberProvider" type="text" placeholder="Артикул поставщика" />
-          <input name="provider" type="text" placeholder="Поставщик" />
-          <input name="numberInBox" type="number" placeholder="Штук в коробке" />
-          <input name="volume" type="text" placeholder="Объем в литрах" />
-          <input name="minimum" type="number" placeholder="Минимальное количество на складе" />
+          <input required name="productTitleProvider" type="text" placeholder="Название товара у поставщика" />
+          <input required name="productTitleOzon" type="text" placeholder="Название товара Ozon" />
+          <input required name="articleNumberProvider" type="text" placeholder="Артикул поставщика" />
+          <input required name="articleNumberOzon" type="text" placeholder="Артикул Озон" />
+          <input required name="provider" type="text" placeholder="Поставщик" />
+          <input required name="numberInBox" type="number" placeholder="Штук в коробке" />
+          <input required name="volume" type="text" placeholder="Объем в литрах" />
+          <input required name="warehouse" type="text" placeholder="Склад" />
+          <input required name="minimum" type="number" placeholder="Минимальное количество на складе" />
           <div class="upload-img">
-            <label for="img">Добавить изображение</label>
-            <input name="img" id="img" type="file" />
+            <label for="create-img">Добавить изображение</label>
+            <input name="create-img" id="create-img" type="file" />
           </div>
-          <button type="submit">Добавить</button>
+          <button type="submit">Отправить</button>
         </form>
       </div>
 
@@ -106,7 +108,7 @@
 
       <div class="popup" id="popup-update-delivery">
         <form class="form" id="update-delivery-form">
-          <input name="update-delivery" type="number" placeholder="Введите новое значение" />
+          <input required name="update-delivery" type="number" placeholder="Введите новое значение" />
           <button type="submit">Обновить</button>
         </form>
       </div>

@@ -3,25 +3,28 @@ let filterType = null;
 let filterValue = null;
 let updateProductId = null;
 
-const config = {
-  URL: "http://141.8.193.46",
-  API_URL: `http://141.8.193.46/api`,
-};
-
 // const config = {
-//   URL: "http://localhost:3000",
-//   API_URL: `http://localhost:3000/api`,
+//   URL: "http://141.8.193.46",
+//   API_URL: `http://141.8.193.46/api`,
 // };
+
+const config = {
+  URL: "http://localhost:3000",
+  API_URL: `http://localhost:3000/api`,
+};
 
 const table = document.getElementById("table");
 const tableBody = document.getElementById("table-body");
 const popup = document.getElementById("popup");
+const popupCreate = document.getElementById("popup-create-product");
 const popupUpload = document.getElementById("popup-upload");
 const popupUpdateDelivery = document.getElementById("popup-update-delivery");
 const loading = document.getElementById("loading");
 const getXlsxBtn = document.getElementById("get-xlsx");
+const createProductForm = document.getElementById("create-product-form");
 const updateProductForm = document.getElementById("update-product-form");
 const updateDeliveryForm = document.getElementById("update-delivery-form");
+const createProductBtn = document.getElementById("create-product");
 const uploadXlsxBtn = document.getElementById("upload-xlsx");
 const uploadXlsxForm = document.getElementById("upload-xlsx-form");
 const articulsItog = document.getElementById("articuls-itog");
@@ -30,8 +33,7 @@ const volumeItog = document.getElementById("volume-itog");
 const firstSelect = document.getElementById("first-step");
 const secondSelect = document.getElementById("second-step");
 
-const volumeInput = document.querySelector('input[name="volume"]');
-const formFirstInput = document.querySelector('input[name="productTitleProvider"]');
+const volumeInputs = document.querySelectorAll('input[name="volume"]');
 
 const arrayRender = (array, templateCallback) => {
   return array.map(templateCallback).join("");
@@ -144,6 +146,10 @@ const start = async () => {
   render(data);
 };
 
+createProductBtn.addEventListener("click", () => {
+  popupCreate.classList.add("active");
+});
+
 uploadXlsxBtn.addEventListener("click", () => {
   popupUpload.classList.add("active");
 });
@@ -152,7 +158,6 @@ tableBody.addEventListener("click", async (e) => {
   if (e.target.closest("#update-product")) {
     updateProductId = +e.target.dataset.id;
     popup.classList.add("active");
-    formFirstInput.focus();
   }
   if (e.target.closest(".delivery.highlighted ")) {
     updateProductId = +e.target.dataset.id;
@@ -179,6 +184,46 @@ popupUpdateDelivery.addEventListener("click", (e) => {
   if (!e.target.closest(".form")) popupUpdateDelivery.classList.remove("active");
 });
 
+popupCreate.addEventListener("click", (e) => {
+  if (!e.target.closest(".form")) popupCreate.classList.remove("active");
+});
+
+createProductForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const inputs = document.querySelectorAll(".form input[type='text']");
+
+  [...inputs].forEach((i) => {
+    i.value = i.value.trim();
+  });
+
+  const formData = new FormData(e.target);
+
+  popupCreate.classList.remove("active");
+
+  try {
+    loading.classList.add("active");
+
+    const response = await fetch(`${config.API_URL}/create-product`, {
+      method: "POST",
+      body: formData,
+    });
+
+    data = await response.json();
+
+    const inputElems = createProductForm.querySelectorAll("input");
+
+    [...inputElems].forEach((i) => (i.value = ""));
+
+    loading.classList.remove("active");
+
+    render(data);
+  } catch (error) {
+    loading.classList.remove("active");
+    return alert(`Что-то пошло не так, ${error.message}`);
+  }
+});
+
 updateProductForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -191,22 +236,27 @@ updateProductForm.addEventListener("submit", async (e) => {
   const formData = new FormData(e.target);
 
   popup.classList.remove("active");
-  loading.classList.add("active");
+  try {
+    loading.classList.add("active");
 
-  const response = await fetch(`${config.API_URL}/update-product/${updateProductId}`, {
-    method: "POST",
-    body: formData,
-  });
+    const response = await fetch(`${config.API_URL}/update-product/${updateProductId}`, {
+      method: "POST",
+      body: formData,
+    });
 
-  data = await response.json();
+    data = await response.json();
 
-  const inputElems = updateProductForm.querySelectorAll("input");
+    const inputElems = updateProductForm.querySelectorAll("input");
 
-  [...inputElems].forEach((i) => (i.value = ""));
+    [...inputElems].forEach((i) => (i.value = ""));
 
-  loading.classList.remove("active");
+    loading.classList.remove("active");
 
-  render(data);
+    render(data);
+  } catch (error) {
+    loading.classList.remove("active");
+    return alert(`Что-то пошло не так, ${error.message}`);
+  }
 });
 
 updateDeliveryForm.addEventListener("submit", async (e) => {
@@ -217,15 +267,20 @@ updateDeliveryForm.addEventListener("submit", async (e) => {
   const delivery = formData.get("update-delivery");
 
   popupUpdateDelivery.classList.remove("active");
-  loading.classList.add("active");
+  try {
+    loading.classList.add("active");
 
-  const response = await fetch(`${config.API_URL}/update-delivery/${updateProductId}?delivery=${delivery}`);
+    const response = await fetch(`${config.API_URL}/update-delivery/${updateProductId}?delivery=${delivery}`);
 
-  data = await response.json();
+    data = await response.json();
 
-  loading.classList.remove("active");
+    loading.classList.remove("active");
 
-  render(data);
+    render(data);
+  } catch (error) {
+    loading.classList.remove("active");
+    return alert(`Что-то пошло не так, ${error.message}`);
+  }
 });
 
 uploadXlsxForm.addEventListener("submit", async (e) => {
@@ -292,8 +347,10 @@ secondSelect.addEventListener("change", (e) => {
   renderCalculateData();
 });
 
-volumeInput.addEventListener("change", (e) => {
-  volumeInput.value = e.target.value.replace(/\,/, ".");
+volumeInputs.forEach((i) => {
+  i.addEventListener("change", (e) => {
+    i.value = e.target.value.replace(/\,/, ".");
+  });
 });
 
 start();

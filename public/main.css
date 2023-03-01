@@ -55,6 +55,7 @@ td {
 }
 
 .popup {
+  overflow: hidden;
   display: none;
   position: absolute;
   top: 0;

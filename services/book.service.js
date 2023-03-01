@@ -71,19 +71,19 @@ class BookService {
 
       const sheetJSON = utils.sheet_to_json(sheet);
 
-      const arrayForBd = sheetJSON.map((elem) => ({
-        SKU: elem.SKU,
-        warehouse: elem["Название склада"],
-        articleNumberOzon: elem["Артикул"],
-        productTitleOzon: elem["Название товара"],
-        productInTransit: elem["Товары в пути"],
-        availableToSale: elem["Доступный к продаже товар"],
-        reserve: elem["Резерв"],
+      const array = sheetJSON.map((elem) => ({
+        SKU: elem["Отчёт по остаткам и товарам в пути на склады Ozon"],
+        warehouse: elem.__EMPTY,
+        articleNumberOzon: elem.__EMPTY_1,
+        productTitleOzon: elem.__EMPTY_2,
+        productInTransit: elem.__EMPTY_3,
+        availableToSale: elem.__EMPTY_4,
+        reserve: elem.__EMPTY_5,
       }));
 
-      for (let index = 0; index < arrayForBd.length; index++) {
-        await productService.createProduct(arrayForBd[index]);
-      }
+      const arrayForBd = array.slice(3);
+
+      await productService.createProductsFromArray(arrayForBd);
 
       const products = await productService.getProducts();
 

@@ -4,18 +4,17 @@ const bookService = require("../services/book.service");
 const productService = require("../services/product.service");
 
 class ProductController {
-  createProduct(req, res, next) {
+  async createProduct(req, res, next) {
     try {
-      const form = formidable({ multiples: true });
+      const body = req.body;
+      const files = req.files;
 
-      form.parse(req, async (err, fields, files) => {
-        if (err) {
-          next(err);
-          return;
-        }
-        const data = await productService.createProduct({ fields, files });
-        return res.json(data);
-      });
+      if (files) await productService.createProduct(body, files["create-img"]);
+      await productService.createProduct(body);
+
+      const products = await productService.getProducts();
+
+      return res.json(products);
     } catch (error) {
       return next(ApiError.BadRequest(error.message));
     }
@@ -23,12 +22,15 @@ class ProductController {
 
   async updateProduct(req, res, next) {
     try {
+      const files = req.files;
       const {
         params: { id },
         body,
-        files: { img },
       } = req;
-      await productService.updateProduct(id, body, img);
+
+      if (files) await productService.updateProduct(id, body, files["img"]);
+      else await productService.updateProduct(id, body);
+
       const products = await productService.getProducts();
       return res.json(products);
     } catch (error) {

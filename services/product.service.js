@@ -4,51 +4,124 @@ const uuid = require("uuid");
 const ApiError = require("../api/ApiError");
 
 class ProductService {
-  async createProduct(obj) {
+  async createProduct(body, img = null) {
     try {
-      const possibleProduct = await Product.findOne({ where: { articleNumberOzon: obj.articleNumberOzon } });
+      const possibleProduct = await Product.findOne({ where: { articleNumberOzon: body.articleNumberOzon } });
 
       if (possibleProduct) {
-        return possibleProduct;
+        throw new Error("Такой товар уже существует");
       }
 
-      const product = await Product.create({ ...obj });
+      let fullName = "";
 
-      return product;
+      if (img) {
+        const ext = img.name.split(".").pop();
+        fullName = `${uuid.v4()}.${ext}`;
+
+        const filePath = path.join(__dirname, "..", "public", fullName);
+
+        await img.mv(filePath);
+      }
+
+      await Product.create({ ...body, img: fullName });
+
+      return;
     } catch (error) {
       throw ApiError.BadRequest(error.message);
     }
+  }
+
+  async createProductsFromArray(array) {
+    for (let index = 0; index < array.length; index++) {
+      const possibleProduct = await Product.findOne({ where: { articleNumberOzon: array[index].articleNumberOzon } });
+
+      if (!possibleProduct) await Product.create({ ...array[index] });
+      else {
+        const calculatedData = this.calculateProductData(possibleProduct, array[index]);
+
+        await possibleProduct.update({ ...array[index], ...calculatedData });
+
+        await possibleProduct.save();
+      }
+    }
+
+    return;
+  }
+
+  calculateProductData(product, obj) {
+    let checked = false;
+
+    const fullCount = +obj.productInTransit + +obj.availableToSale;
+
+    console.log(obj.productInTransit);
+    console.log(obj.availableToSale);
+
+    let fullDelivery = 0;
+    const delivery = +product.minimum - fullCount;
+
+    if (delivery > 0) {
+      const boxesCount = Math.floor(delivery / product.numberInBox);
+
+      fullDelivery = boxesCount * product.numberInBox;
+
+      if (fullDelivery < delivery) fullDelivery = (boxesCount + 1) * product.numberInBox;
+    }
+
+    if (fullDelivery !== 0) checked = true;
+
+    return {
+      checked,
+      fullCount,
+      delivery: fullDelivery,
+    };
+  }
+
+  calculateProductDataV2(obj, product) {
+    let checked = false;
+
+    const fullCount = +obj.productInTransit + +obj.availableToSale;
+
+    console.log(obj.productInTransit);
+    console.log(obj.availableToSale);
+
+    let fullDelivery = 0;
+    const delivery = +product.minimum - fullCount;
+
+    if (delivery > 0) {
+      const boxesCount = Math.floor(delivery / product.numberInBox);
+
+      fullDelivery = boxesCount * product.numberInBox;
+
+      if (fullDelivery < delivery) fullDelivery = (boxesCount + 1) * product.numberInBox;
+    }
+
+    if (fullDelivery !== 0) checked = true;
+
+    return {
+      checked,
+      fullCount,
+      delivery: fullDelivery,
+    };
   }
 
   async updateProduct(id, obj, img) {
     try {
       const product = await Product.findOne({ where: { id } });
 
-      const ext = img.name.split(".").pop();
-      const fullName = `${uuid.v4()}.${ext}`;
+      let fullName = "";
 
-      const filePath = path.join(__dirname, "..", "public", fullName);
+      if (img) {
+        const ext = img.name.split(".").pop();
+        fullName = `${uuid.v4()}.${ext}`;
 
-      img.mv(filePath);
+        const filePath = path.join(__dirname, "..", "public", fullName);
 
-      let checked = false;
-
-      const fullCount = +product.productInTransit + +product.availableToSale;
-
-      let fullDelivery = 0;
-      const delivery = +obj.minimum - fullCount;
-
-      if (delivery > 0) {
-        const boxesCount = Math.floor(delivery / obj.numberInBox);
-
-        fullDelivery = boxesCount * obj.numberInBox;
-
-        if (fullDelivery < delivery) fullDelivery = (boxesCount + 1) * obj.numberInBox;
+        await img.mv(filePath);
       }
 
-      if (fullDelivery !== 0) checked = true;
+      const calculatedData = this.calculateProductDataV2(product, obj);
 
-      await product.update({ ...obj, fullCount, checked, delivery: fullDelivery, img: fullName });
+      await product.update({ ...obj, ...calculatedData, img: fullName });
 
       await product.save();
 
