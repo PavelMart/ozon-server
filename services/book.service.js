@@ -40,7 +40,7 @@ class BookService {
         return arr;
       });
 
-      const finalData = [["Артикул", "Название товара", "Заказ"], ...productsData];
+      const finalData = [["артикул", "имя (необязательно)", "количество"], ...productsData];
 
       const worksheet = utils.aoa_to_sheet(finalData);
 

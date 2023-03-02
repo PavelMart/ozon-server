@@ -13,6 +13,8 @@ class ProductService {
         throw new Error("Такой товар уже существует");
       }
 
+      const delivery = +body.minimum;
+
       let fullName = "";
 
       if (img) {
@@ -24,7 +26,7 @@ class ProductService {
         await img.mv(filePath);
       }
 
-      await Product.create({ ...body, img: fullName });
+      await Product.create({ ...body, img: fullName, delivery, checked: true });
 
       return;
     } catch (error) {
