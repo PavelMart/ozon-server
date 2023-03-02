@@ -9,7 +9,7 @@ class ProductController {
       const files = req.files;
 
       if (files) await productService.createProduct(body, files["create-img"]);
-      await productService.createProduct(body);
+      else await productService.createProduct(body);
 
       const products = await productService.getProducts();
 

@@ -337,7 +337,7 @@ getXlsxBtn.addEventListener("click", async () => {
   try {
     loading.classList.add("active");
     await fetch(`${config.API_URL}/create-book?filterType=${filterType}&filterValue=${filterValue}`);
-    window.open(`${config.URL}/${createDate()}${filterValue.trim()}.xlsx`, "_blank");
+    window.open(`${config.URL}/${createDate()}-${filterValue.trim()}.xlsx`, "_blank");
     loading.classList.remove("active");
   } catch (error) {
     loading.classList.remove("active");

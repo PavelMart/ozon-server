@@ -36,9 +36,16 @@ class BookService {
 
       const worksheet = utils.aoa_to_sheet(finalData);
 
+      const wscols = [{ wch: 25 }, { wch: 75 }, { wch: 10 }];
+
+      worksheet["!cols"] = wscols;
+
       utils.book_append_sheet(workbook, worksheet, "К поставке");
 
-      const buf = write(workbook, { type: "buffer", bookType: "xlsx" });
+      const buf = write(workbook, {
+        type: "buffer",
+        bookType: "xlsx",
+      });
       // /* buf is a Buffer */
       writeFileSync(`public/${this.createDate()}-${filter.filterValue}.xlsx`, buf);
 
