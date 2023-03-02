@@ -90,7 +90,7 @@ const renderTableBody = (items) => {
       <td><input type="checkbox" ${i.checked ? "checked" : ""} data-id=${i.id}></td>
       <td class="SKU d-none">${i.SKU}</td>
       <td class="product-img">
-            ${i.img ? `<img src="${i.img}" alt="${i.articleNumberOzon}" width="50" height="50">` : "Нет изображения"}
+            ${i.img ? `<img src="${i.img}" alt="${i.articleNumberOzon}" width="50" height="50">` : "-"}
       </td>
       <td class="productTitleProvider">${i.productTitleProvider}</td>
       <td class="productTitleOzon d-none">${i.productTitleOzon}</td>
