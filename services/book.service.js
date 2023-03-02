@@ -13,10 +13,18 @@ class BookService {
 
       const filteredProducts = products.filter((p) => p.checked);
 
-      if (filter.filterType === "provider") {
-      }
+      let array = [];
 
-      const productsData = filteredProducts.map((p) => {
+      if (filter.filterType === "provider") {
+        for (let i = 0; i < filteredProducts.length; i++) {
+          const elemIndex = array.findIndex((elem) => elem.productTitleProvider === filteredProducts[i].productTitleProvider);
+          if (elemIndex >= 0) {
+            array[elemIndex].delivery = +array[elemIndex].delivery + +filteredProducts[i].delivery;
+          } else array.push(filteredProducts[i]);
+        }
+      } else array = filteredProducts;
+
+      const productsData = array.map((p) => {
         const arr = [];
         const data = p.dataValues;
 
@@ -28,7 +36,7 @@ class BookService {
           arr.push(data.articleNumberProvider);
           arr.push(data.productTitleProvider);
         }
-        arr.push(data.delivery);
+        arr.push(+data.delivery);
         return arr;
       });
 

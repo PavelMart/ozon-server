@@ -3,15 +3,15 @@ let filterType = null;
 let filterValue = null;
 let updateProductId = null;
 
-const config = {
-  URL: "http://141.8.193.46",
-  API_URL: `http://141.8.193.46/api`,
-};
-
 // const config = {
-//   URL: "http://localhost:3000",
-//   API_URL: `http://localhost:3000/api`,
+//   URL: "http://141.8.193.46",
+//   API_URL: `http://141.8.193.46/api`,
 // };
+
+const config = {
+  URL: "http://localhost:3000",
+  API_URL: `http://localhost:3000/api`,
+};
 
 const loading = document.getElementById("loading");
 
@@ -339,6 +339,10 @@ getXlsxBtn.addEventListener("click", async () => {
     await fetch(`${config.API_URL}/create-book?filterType=${filterType}&filterValue=${filterValue}`);
     window.open(`${config.URL}/${createDate()}-${filterValue.trim()}.xlsx`, "_blank");
     loading.classList.remove("active");
+    getXlsxBtn.style.display = "none";
+    secondSelect.style.display = "none";
+    firstSelect.value = "empty";
+    render(data);
   } catch (error) {
     loading.classList.remove("active");
     return alert(`Что-то пошло не так, ${error.message}`);
