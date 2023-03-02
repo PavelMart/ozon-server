@@ -1,4 +1,3 @@
-const formidable = require("formidable");
 const ApiError = require("../api/ApiError");
 const bookService = require("../services/book.service");
 const productService = require("../services/product.service");
@@ -51,6 +50,16 @@ class ProductController {
   async updateDelivery(req, res, next) {
     try {
       await productService.updateDelivery(req.params.id, req.query.delivery);
+      const products = await productService.getProducts();
+      return res.json(products);
+    } catch (error) {
+      return next(ApiError.BadRequest(error.message));
+    }
+  }
+
+  async uploadFromOzon(req, res, next) {
+    try {
+      await productService.createProductsFromOzon();
       const products = await productService.getProducts();
       return res.json(products);
     } catch (error) {

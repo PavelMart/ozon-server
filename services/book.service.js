@@ -1,8 +1,7 @@
 const { utils, write, read, readFile } = require("xlsx");
-const { writeFileSync } = require("fs");
+const { writeFileSync, unlink } = require("fs");
 const productService = require("./product.service");
 const path = require("path");
-const uuid = require("uuid");
 const ApiError = require("../api/ApiError");
 
 class BookService {
@@ -13,6 +12,9 @@ class BookService {
       const products = await productService.getProducts(filter);
 
       const filteredProducts = products.filter((p) => p.checked);
+
+      if (filter.filterType === "provider") {
+      }
 
       const productsData = filteredProducts.map((p) => {
         const arr = [];
@@ -50,13 +52,14 @@ class BookService {
     const date = new Date();
     const day = date.getDate();
     const month = date.getMonth();
+    const year = date.getFullYear();
 
     const createText = (number) => (number < 10 ? `0${number}` : `${number}`);
 
     const dayText = createText(day);
     const monthText = createText(month + 1);
 
-    return `${dayText}-${monthText}`;
+    return `${dayText}${monthText}${year}`;
   }
 
   async readBook(file) {

@@ -1,6 +1,7 @@
 const Product = require("../models/product.model");
 const path = require("path");
 const uuid = require("uuid");
+const { default: axios } = require("axios");
 const ApiError = require("../api/ApiError");
 
 class ProductService {
@@ -48,6 +49,37 @@ class ProductService {
         await possibleProduct.save();
       }
     }
+    return;
+  }
+
+  async createProductsFromOzon() {
+    const instance = axios.create({
+      headers: {
+        "Client-Id": "576811",
+        "Api-Key": "0da3d1af-c5dd-490d-8962-9b29ca6995ec",
+        "Content-Type": "application/json",
+      },
+    });
+    const response = await instance.post("https://api-seller.ozon.ru/v2/analytics/stock_on_warehouses", {
+      limit: 1000,
+      offset: 0,
+      warehouse_type: "ALL",
+    });
+
+    const productsFromOzon = response.data.result.rows;
+
+    const array = productsFromOzon.map((elem) => ({
+      SKU: elem.sku,
+      warehouse: elem.warehouse_name,
+      articleNumberOzon: elem.item_code,
+      productTitleOzon: elem.item_name,
+      productInTransit: elem.promised_amount,
+      availableToSale: elem.free_to_sell_amount,
+      reserve: elem.reserved_amount,
+    }));
+
+    await this.createProductsFromArray(array);
+
     return;
   }
 

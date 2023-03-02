@@ -13,25 +13,32 @@ const config = {
 //   API_URL: `http://localhost:3000/api`,
 // };
 
+const loading = document.getElementById("loading");
+
 const table = document.getElementById("table");
 const tableBody = document.getElementById("table-body");
+
 const popup = document.getElementById("popup");
 const popupCreate = document.getElementById("popup-create-product");
 const popupUpload = document.getElementById("popup-upload");
 const popupUpdateDelivery = document.getElementById("popup-update-delivery");
-const loading = document.getElementById("loading");
-const getXlsxBtn = document.getElementById("get-xlsx");
+
 const createProductForm = document.getElementById("create-product-form");
 const updateProductForm = document.getElementById("update-product-form");
 const updateDeliveryForm = document.getElementById("update-delivery-form");
-const createProductBtn = document.getElementById("create-product");
-const uploadXlsxBtn = document.getElementById("upload-xlsx");
 const uploadXlsxForm = document.getElementById("upload-xlsx-form");
+
 const articulsItog = document.getElementById("articuls-itog");
 const countItog = document.getElementById("count-itog");
 const volumeItog = document.getElementById("volume-itog");
+
 const firstSelect = document.getElementById("first-step");
 const secondSelect = document.getElementById("second-step");
+
+const uploadProductsBtn = document.getElementById("upload-products");
+const createProductBtn = document.getElementById("create-product");
+const getXlsxBtn = document.getElementById("get-xlsx");
+const uploadXlsxBtn = document.getElementById("upload-xlsx");
 
 const volumeInputs = document.querySelectorAll('input[name="volume"]');
 
@@ -47,13 +54,14 @@ const createDate = () => {
   const date = new Date();
   const day = date.getDate();
   const month = date.getMonth();
+  const year = date.getFullYear();
 
   const createText = (number) => (number < 10 ? `0${number}` : `${number}`);
 
   const dayText = createText(day);
   const monthText = createText(month + 1);
 
-  return `${dayText}-${monthText}`;
+  return `${dayText}${monthText}${year}`;
 };
 
 const calculate = () => {
@@ -135,15 +143,20 @@ const render = (data) => {
 };
 
 const start = async () => {
-  loading.classList.add("active");
+  try {
+    loading.classList.add("active");
 
-  const response = await fetch(`${config.API_URL}`);
+    const response = await fetch(`${config.API_URL}`);
 
-  data = await response.json();
+    data = await response.json();
 
-  loading.classList.remove("active");
+    loading.classList.remove("active");
 
-  render(data);
+    render(data);
+  } catch (error) {
+    loading.classList.remove("active");
+    return alert(`Что-то пошло не так, ${error.message}`);
+  }
 };
 
 createProductBtn.addEventListener("click", () => {
@@ -315,15 +328,38 @@ uploadXlsxForm.addEventListener("submit", async (e) => {
 
     render(data);
   } catch (error) {
+    loading.classList.remove("active");
     return alert(`Файл не был загружен, ${error.message}`);
   }
 });
 
 getXlsxBtn.addEventListener("click", async () => {
-  loading.classList.add("active");
-  await fetch(`${config.API_URL}/create-book?filterType=${filterType}&filterValue=${filterValue}`);
-  window.open(`${config.URL}/${createDate()}-${filterValue.trim()}.xlsx`, "_blank");
-  loading.classList.remove("active");
+  try {
+    loading.classList.add("active");
+    await fetch(`${config.API_URL}/create-book?filterType=${filterType}&filterValue=${filterValue}`);
+    window.open(`${config.URL}/${createDate()}${filterValue.trim()}.xlsx`, "_blank");
+    loading.classList.remove("active");
+  } catch (error) {
+    loading.classList.remove("active");
+    return alert(`Что-то пошло не так, ${error.message}`);
+  }
+});
+
+uploadProductsBtn.addEventListener("click", async () => {
+  try {
+    loading.classList.add("active");
+
+    const response = await fetch(`${config.API_URL}/upload-from-ozon`);
+
+    data = await response.json();
+
+    loading.classList.remove("active");
+
+    render(data);
+  } catch (error) {
+    loading.classList.remove("active");
+    return alert(`Что-то пошло не так, ${error.message}`);
+  }
 });
 
 firstSelect.addEventListener("change", (e) => {

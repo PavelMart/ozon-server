@@ -8,6 +8,7 @@ router.post("/create-product", productController.createProduct);
 router.post("/update-product/:id", productController.updateProduct);
 router.post("/upload-xlsx", productController.uploadXlsx);
 router.get("/", productController.getAll);
+router.get("/upload-from-ozon", productController.uploadFromOzon);
 router.get("/update-checked/:id", productController.updateChecked);
 router.get("/update-delivery/:id", productController.updateDelivery);
 router.get("/create-book", bookController.createBook);
