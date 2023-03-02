@@ -143,7 +143,7 @@ table button {
 }
 
 .warehouse {
-  max-width: 250px;
+  width: 210px;
 }
 
 button#update-product {
