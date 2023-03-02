@@ -22,6 +22,8 @@ button:hover {
 
 table {
   max-width: 100vw;
+  width: 100%;
+  word-break: break-all;
 }
 
 table,
@@ -137,9 +139,18 @@ table button {
 }
 
 .productTitleProvider {
-  min-width: 300px;
+  width: 300px;
 }
 
 .warehouse {
   max-width: 250px;
+}
+
+button#update-product {
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 30px;
+  min-height: 30px;
 }
