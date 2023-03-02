@@ -20,6 +20,10 @@ button:hover {
   color: white;
 }
 
+table {
+  max-width: 100vw;
+}
+
 table,
 tr,
 th,
@@ -130,4 +134,12 @@ table button {
 
 .delivery:hover {
   background-color: blanchedalmond;
+}
+
+.productTitleProvider {
+  min-width: 300px;
+}
+
+.warehouse {
+  max-width: 200px;
 }

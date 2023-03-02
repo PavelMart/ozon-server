@@ -3,15 +3,15 @@ let filterType = null;
 let filterValue = null;
 let updateProductId = null;
 
-const config = {
-  URL: "http://141.8.193.46",
-  API_URL: `http://141.8.193.46/api`,
-};
-
 // const config = {
-//   URL: "http://localhost:3000",
-//   API_URL: `http://localhost:3000/api`,
+//   URL: "http://141.8.193.46",
+//   API_URL: `http://141.8.193.46/api`,
 // };
+
+const config = {
+  URL: "http://localhost:3000",
+  API_URL: `http://localhost:3000/api`,
+};
 
 const loading = document.getElementById("loading");
 
@@ -46,8 +46,9 @@ const arrayRender = (array, templateCallback) => {
   return array.map(templateCallback).join("");
 };
 
-const filter = (type, value) => {
-  return data.filter((i) => i[type] === value);
+const filterData = (type, value) => {
+  if (type !== "empty") return data.filter((i) => i[type] === value);
+  return data;
 };
 
 const createDate = () => {
@@ -64,30 +65,20 @@ const createDate = () => {
   return `${dayText}${monthText}${year}`;
 };
 
-const calculate = () => {
-  let articuls = 0,
-    count = 0,
-    volume = 0;
-  const rows = document.querySelectorAll(".table-row");
+const calculate = (array) => {
+  const atricleItems = array.filter((elem) => elem.checked);
+  const articles = new Set(atricleItems.map((elem) => elem.articleNumberOzon));
+  console.log();
+  const count = atricleItems.reduce((summ, elem) => summ + +elem.delivery, 0);
+  const volume = atricleItems.reduce((summ, elem) => elem.delivery * elem.volume + summ, 0);
 
-  [...rows].forEach((row) => {
-    const checkedInput = row.querySelector('input[type="checkbox"]');
-    if (!checkedInput.checked) return;
-    articuls++;
-    const deliveryData = row.querySelector(".delivery");
-    count += +deliveryData.textContent;
-
-    const volumeData = row.querySelector(".volume-summ");
-    volume += +volumeData.textContent;
-  });
-
-  return { articuls, count, volume };
+  return { articles: [...articles].length, count, volume };
 };
 
-const renderCalculateData = () => {
-  const { articuls, count, volume } = calculate();
+const renderCalculateData = (array) => {
+  const { articles, count, volume } = calculate(array);
 
-  articulsItog.textContent = articuls;
+  articulsItog.textContent = articles;
   countItog.textContent = count;
   volumeItog.textContent = volume.toFixed(3);
 };
@@ -139,7 +130,7 @@ const renderOptions = (value) => {
 
 const render = (data) => {
   renderTableBody(data);
-  renderCalculateData();
+  renderCalculateData(data);
 };
 
 const start = async () => {
@@ -188,9 +179,20 @@ tableBody.addEventListener("click", async (e) => {
   if (e.target.closest(`input[type="checkbox"]`)) {
     const id = e.target.dataset.id;
     const checked = e.target.checked;
-    const response = await fetch(`${config.API_URL}/update-checked/${id}?checked=${checked}`);
-    data = await response.json();
-    render(data);
+    try {
+      const response = await fetch(`${config.API_URL}/update-checked/${id}?checked=${checked}`);
+      data = await response.json();
+
+      const filterType = localStorage.getItem("filterType");
+      const filterValue = localStorage.getItem("filterValue");
+
+      firstSelect.value = filterType;
+      secondSelect.value = filterValue;
+
+      render(filterData(filterType, filterValue));
+    } catch (error) {
+      return alert(`Что-то пошло не так, ${error.message}`);
+    }
   }
 });
 
@@ -274,7 +276,13 @@ updateProductForm.addEventListener("submit", async (e) => {
 
     loading.classList.remove("active");
 
-    render(data);
+    const filterType = localStorage.getItem("filterType");
+    const filterValue = localStorage.getItem("filterValue");
+
+    firstSelect.value = filterType;
+    secondSelect.value = filterValue;
+
+    render(filterData(filterType, filterValue));
   } catch (error) {
     loading.classList.remove("active");
     return alert(`Что-то пошло не так, ${error.message}`);
@@ -298,7 +306,13 @@ updateDeliveryForm.addEventListener("submit", async (e) => {
 
     loading.classList.remove("active");
 
-    render(data);
+    const filterType = localStorage.getItem("filterType");
+    const filterValue = localStorage.getItem("filterValue");
+
+    firstSelect.value = filterType;
+    secondSelect.value = filterValue;
+
+    render(filterData(filterType, filterValue));
   } catch (error) {
     loading.classList.remove("active");
     return alert(`Что-то пошло не так, ${error.message}`);
@@ -368,19 +382,22 @@ uploadProductsBtn.addEventListener("click", async () => {
 
 firstSelect.addEventListener("change", (e) => {
   filterType = e.target.value;
+
+  localStorage.setItem("filterType", filterType);
+
   if (filterType === "empty") {
     getXlsxBtn.style.display = "none";
     secondSelect.style.display = "none";
     renderTableBody(data);
-    renderCalculateData();
+    renderCalculateData(data);
     return;
   }
 
   if (filterType === "checked") {
     getXlsxBtn.style.display = "none";
     secondSelect.style.display = "none";
-    renderTableBody(filter(filterType, true));
-    renderCalculateData();
+    renderTableBody(filterData(filterType, true));
+    renderCalculateData(filterData(filterType, true));
     return;
   }
 
@@ -392,18 +409,20 @@ firstSelect.addEventListener("change", (e) => {
 secondSelect.addEventListener("change", (e) => {
   filterValue = e.target.value;
 
+  localStorage.setItem("filterValue", filterValue);
+
   if (filterValue === "empty") {
     getXlsxBtn.style.display = "none";
     return renderTableBody(data);
   }
 
-  const filteredData = filter(filterType, filterValue);
+  const filteredData = filterData(filterType, filterValue);
 
   if (filterType === "productTitleProvider" || filterType === "articleNumberOzon" || !filteredData.length)
     getXlsxBtn.style.display = "none";
   else getXlsxBtn.style.display = "";
   renderTableBody(filteredData);
-  renderCalculateData();
+  renderCalculateData(filteredData);
 });
 
 volumeInputs.forEach((i) => {
