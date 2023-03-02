@@ -27,7 +27,7 @@ td {
   text-align: center;
   border-collapse: separate;
   border-spacing: 0;
-  font-size: 12px;
+  font-size: 16px;
 }
 table button {
   border-radius: 0;
@@ -126,4 +126,8 @@ table button {
 
 .c-pointer {
   cursor: pointer;
+}
+
+.delivery:hover {
+  background-color: blanchedalmond;
 }

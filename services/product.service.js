@@ -38,7 +38,8 @@ class ProductService {
       });
 
       if (!possibleProduct) {
-        await Product.create({ ...array[index] });
+        const calculatedData = this.calculateProductData(possibleProduct, array[index]);
+        await Product.create({ ...array[index], ...calculatedData });
       } else {
         const calculatedData = this.calculateProductData(possibleProduct, array[index]);
 
@@ -56,14 +57,17 @@ class ProductService {
     const fullCount = +obj.productInTransit + +obj.availableToSale;
 
     let fullDelivery = 0;
-    const delivery = +product.minimum - fullCount;
 
-    if (delivery > 0) {
-      const boxesCount = Math.floor(delivery / product.numberInBox);
+    if (product) {
+      const delivery = +product.minimum - fullCount;
 
-      fullDelivery = boxesCount * product.numberInBox;
+      if (delivery > 0) {
+        const boxesCount = Math.floor(delivery / product.numberInBox);
 
-      if (fullDelivery < delivery) fullDelivery = (boxesCount + 1) * product.numberInBox;
+        fullDelivery = boxesCount * product.numberInBox;
+
+        if (fullDelivery < delivery) fullDelivery = (boxesCount + 1) * product.numberInBox;
+      }
     }
 
     if (fullDelivery !== 0) checked = true;
@@ -75,30 +79,30 @@ class ProductService {
     };
   }
 
-  calculateProductDataV2(obj, product) {
-    let checked = false;
+  // calculateProductDataV2(obj, product) {
+  //   let checked = false;
 
-    const fullCount = +obj.productInTransit + +obj.availableToSale;
+  //   const fullCount = +obj.productInTransit + +obj.availableToSale;
 
-    let fullDelivery = 0;
-    const delivery = +product.minimum - fullCount;
+  //   let fullDelivery = 0;
+  //   const delivery = +product.minimum - fullCount;
 
-    if (delivery > 0) {
-      const boxesCount = Math.floor(delivery / product.numberInBox);
+  //   if (delivery > 0) {
+  //     const boxesCount = Math.floor(delivery / product.numberInBox);
 
-      fullDelivery = boxesCount * product.numberInBox;
+  //     fullDelivery = boxesCount * product.numberInBox;
 
-      if (fullDelivery < delivery) fullDelivery = (boxesCount + 1) * product.numberInBox;
-    }
+  //     if (fullDelivery < delivery) fullDelivery = (boxesCount + 1) * product.numberInBox;
+  //   }
 
-    if (fullDelivery !== 0) checked = true;
+  //   if (fullDelivery !== 0) checked = true;
 
-    return {
-      checked,
-      fullCount,
-      delivery: fullDelivery,
-    };
-  }
+  //   return {
+  //     checked,
+  //     fullCount,
+  //     delivery: fullDelivery,
+  //   };
+  // }
 
   async updateProduct(id, obj, img) {
     try {
@@ -115,7 +119,7 @@ class ProductService {
         await img.mv(filePath);
       }
 
-      const calculatedData = this.calculateProductDataV2(product, obj);
+      const calculatedData = this.calculateProductData(obj, product);
 
       await product.update({ ...obj, ...calculatedData, img: fullName });
 

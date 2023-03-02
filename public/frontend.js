@@ -40,7 +40,7 @@ const arrayRender = (array, templateCallback) => {
 };
 
 const filter = (type, value) => {
-  return data.filter((i) => i[type] === value && i.checked === true);
+  return data.filter((i) => i[type] === value);
 };
 
 const createDate = () => {
@@ -104,10 +104,10 @@ const renderTableBody = (items) => {
       <td class="productInTransit">${i.productInTransit}</td>
       <td class="availableToSale">${i.availableToSale}</td>
       <td class="fullCount">${i.fullCount}</td>
-      <td class="delivery ${+i.delivery === 0 ? "" : "highlighted c-pointer"}" data-id=${i.id}>${i.delivery}</td>
+      <td class="delivery c-pointer ${+i.delivery === 0 ? "" : "highlighted"}" data-id=${i.id}>${i.delivery}</td>
       <td class="volume">${i.volume}</td>
       <td class="volume-summ">${(i.volume * i.delivery).toFixed(3)}</td>
-      <td class="update"><button id="update-product" data-id="${i.id}">Редактировать</button></td>
+      <td class="update"><button id="update-product" data-id="${i.id}">Ред</button></td>
     </tr>
   `;
   });
@@ -168,7 +168,7 @@ tableBody.addEventListener("click", async (e) => {
 
     popup.classList.add("active");
   }
-  if (e.target.closest(".delivery.highlighted ")) {
+  if (e.target.closest(".delivery ")) {
     updateProductId = +e.target.dataset.id;
     popupUpdateDelivery.classList.add("active");
   }
@@ -336,6 +336,14 @@ firstSelect.addEventListener("change", (e) => {
     return;
   }
 
+  if (filterType === "checked") {
+    getXlsxBtn.style.display = "none";
+    secondSelect.style.display = "none";
+    renderTableBody(filter(filterType, true));
+    renderCalculateData();
+    return;
+  }
+
   getXlsxBtn.style.display = "none";
   secondSelect.style.display = "";
   renderOptions(filterType);
@@ -348,9 +356,11 @@ secondSelect.addEventListener("change", (e) => {
     getXlsxBtn.style.display = "none";
     return renderTableBody(data);
   }
+
   const filteredData = filter(filterType, filterValue);
 
-  if (filterType === "productTitleProvider" || !filteredData.length) getXlsxBtn.style.display = "none";
+  if (filterType === "productTitleProvider" || filterType === "articleNumberOzon" || !filteredData.length)
+    getXlsxBtn.style.display = "none";
   else getXlsxBtn.style.display = "";
   renderTableBody(filteredData);
   renderCalculateData();
