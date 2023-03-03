@@ -3,6 +3,7 @@ const path = require("path");
 const uuid = require("uuid");
 const { default: axios } = require("axios");
 const ApiError = require("../api/ApiError");
+const apiService = require("./api.service");
 
 class ProductService {
   async createProduct(body, img = null) {
@@ -55,10 +56,12 @@ class ProductService {
   }
 
   async createProductsFromOzon() {
+    const { key } = await apiService.getApiKey();
+    console.log(key);
     const instance = axios.create({
       headers: {
         "Client-Id": "576811",
-        "Api-Key": "0da3d1af-c5dd-490d-8962-9b29ca6995ec",
+        "Api-Key": key,
         "Content-Type": "application/json",
       },
     });
@@ -155,7 +158,8 @@ class ProductService {
 
       const calculatedData = this.calculateProductData(obj, product);
 
-      await product.update({ ...obj, ...calculatedData, img: fullName });
+      if (img) await product.update({ ...obj, ...calculatedData, img: fullName });
+      else await product.update({ ...obj, ...calculatedData });
 
       await product.save();
 

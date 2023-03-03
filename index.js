@@ -7,6 +7,7 @@ const path = require("path");
 const fileUpload = require("express-fileupload");
 const errorMiddleware = require("./middleware/errorMiddlware");
 const { Product } = require("./models/product.model");
+const { ApiKey } = require("./models/api.model");
 
 dotenv.config();
 
@@ -32,7 +33,7 @@ app.use(errorMiddleware);
 const start = async () => {
   try {
     await sequelize.authenticate();
-    await sequelize.sync();
+    await sequelize.sync({ alter: { drop: false } });
     app.listen(PORT, () => console.log(`Server has been started on PORT: ${PORT}`));
   } catch (error) {
     console.log(error);

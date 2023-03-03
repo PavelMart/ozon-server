@@ -15,6 +15,7 @@
           <button id="create-product">Добавить товар</button>
           <button id="upload-products">Загрузить данные с Озон</button>
           <button id="upload-xlsx">Загрузить Excel</button>
+          <button id="update-api-key">Сменить ключ API</button>
         </div>
         <div>
           <div>Общее количество разных артикулов - <span id="articuls-itog"></span></div>
@@ -41,24 +42,24 @@
       <table border="true" id="table">
         <thead>
           <tr>
-            <th></th>
+            <th style="max-width: 15px; width: 100%"></th>
             <th class="d-none">SKU</th>
-            <th>Изобр.</th>
-            <th>Название товара</th>
+            <th class="product-img-header">Изобр.</th>
+            <th class="productTitleProvider-header">Название товара</th>
             <th class="d-none">Название товара на Озон</th>
-            <th>Склад</th>
-            <th>Артикул поставщика</th>
-            <th>Артикул на Озон</th>
-            <th>Поставщик</th>
-            <th>Штук в коробке</th>
-            <th>Мин. кол-во на складе</th>
-            <th>Товар в пути</th>
-            <th>В продаже</th>
-            <th>Общее кол-во</th>
-            <th>К поставке</th>
-            <th>Объем одного товара</th>
-            <th>Общий объем</th>
-            <th></th>
+            <th class="warehouse-header">Склад</th>
+            <th class="articleNumberProvider-header">Артикул поставщика</th>
+            <th class="articleNumberOzon-header">Артикул на Озон</th>
+            <th class="provider-header">Поставщик</th>
+            <th class="numberInBox-header">Штук в коробке</th>
+            <th class="minimum-header">Мин. кол-во на складе</th>
+            <th class="productInTransit-header">Товар в пути</th>
+            <th class="availableToSale-header">В продаже</th>
+            <th class="fullCount-header">Общее кол-во</th>
+            <th class="delivery-header">К поставке</th>
+            <th class="volume-header">Объем товара</th>
+            <th class="volume-summ-header">Общий объем</th>
+            <th class="update-header">Ред</th>
           </tr>
         </thead>
         <tbody id="table-body"></tbody>
@@ -127,6 +128,13 @@
       <div class="popup" id="popup-update-delivery">
         <form class="form" id="update-delivery-form">
           <input required name="update-delivery" type="number" placeholder="Введите новое значение" />
+          <button type="submit">Обновить</button>
+        </form>
+      </div>
+
+      <div class="popup" id="popup-update-api-key">
+        <form class="form" id="update-api-key-form">
+          <input required name="update-api-key" type="text" placeholder="Введите новое значение" />
           <button type="submit">Обновить</button>
         </form>
       </div>

@@ -22,10 +22,12 @@ const popup = document.getElementById("popup");
 const popupCreate = document.getElementById("popup-create-product");
 const popupUpload = document.getElementById("popup-upload");
 const popupUpdateDelivery = document.getElementById("popup-update-delivery");
+const popupUpdateApiKey = document.getElementById("popup-update-api-key");
 
 const createProductForm = document.getElementById("create-product-form");
 const updateProductForm = document.getElementById("update-product-form");
 const updateDeliveryForm = document.getElementById("update-delivery-form");
+const updateApiKeyForm = document.getElementById("update-api-key-form");
 const uploadXlsxForm = document.getElementById("upload-xlsx-form");
 
 const articulsItog = document.getElementById("articuls-itog");
@@ -36,6 +38,7 @@ const firstSelect = document.getElementById("first-step");
 const secondSelect = document.getElementById("second-step");
 
 const uploadProductsBtn = document.getElementById("upload-products");
+const updateApiKeyBtn = document.getElementById("update-api-key");
 const createProductBtn = document.getElementById("create-product");
 const getXlsxBtn = document.getElementById("get-xlsx");
 const uploadXlsxBtn = document.getElementById("upload-xlsx");
@@ -90,7 +93,7 @@ const renderTableBody = (items) => {
       <td><input type="checkbox" ${i.checked ? "checked" : ""} data-id=${i.id}></td>
       <td class="SKU d-none">${i.SKU}</td>
       <td class="product-img">
-            ${i.img ? `<img src="${i.img}" alt="${i.articleNumberOzon}" width="50" height="50">` : "-"}
+            ${i.img ? `<img src="${i.img}" alt="${i.articleNumberOzon}" width="49" height="49">` : "-"}
       </td>
       <td class="productTitleProvider">${i.productTitleProvider}</td>
       <td class="productTitleOzon d-none">${i.productTitleOzon}</td>
@@ -158,6 +161,10 @@ uploadXlsxBtn.addEventListener("click", () => {
   popupUpload.classList.add("active");
 });
 
+updateApiKeyBtn.addEventListener("click", () => {
+  popupUpdateApiKey.classList.add("active");
+});
+
 tableBody.addEventListener("click", async (e) => {
   if (e.target.closest("#update-product")) {
     updateProductId = +e.target.dataset.id;
@@ -206,6 +213,10 @@ popupUpload.addEventListener("click", (e) => {
 
 popupUpdateDelivery.addEventListener("click", (e) => {
   if (!e.target.closest(".form")) popupUpdateDelivery.classList.remove("active");
+});
+
+popupUpdateApiKey.addEventListener("click", (e) => {
+  if (!e.target.closest(".form")) popupUpdateApiKey.classList.remove("active");
 });
 
 popupCreate.addEventListener("click", (e) => {
@@ -316,6 +327,28 @@ updateDeliveryForm.addEventListener("submit", async (e) => {
   } catch (error) {
     loading.classList.remove("active");
     return alert(`Что-то пошло не так, ${error.message}`);
+  }
+});
+
+updateApiKeyForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(e.target);
+
+  const ApiKey = formData.get("update-api-key");
+
+  popupUpdateApiKey.classList.remove("active");
+  try {
+    loading.classList.add("active");
+
+    await fetch(`${config.API_URL}/update-api-key?key=${ApiKey}`);
+
+    loading.classList.remove("active");
+
+    alert("Смена ключа успешна");
+  } catch (error) {
+    loading.classList.remove("active");
+    alert(`Что-то пошло не так, ${error.message}`);
   }
 });
 

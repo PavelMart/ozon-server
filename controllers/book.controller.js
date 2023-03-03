@@ -1,5 +1,4 @@
 const bookService = require("../services/book.service");
-const path = require("path");
 const ApiError = require("../api/ApiError");
 
 class BookController {

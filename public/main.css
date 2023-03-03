@@ -21,9 +21,20 @@ button:hover {
 }
 
 table {
-  max-width: 100vw;
-  width: 100%;
-  word-break: break-all;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+}
+
+thead {
+  display: flex;
+  flex-direction: column;
+}
+
+tr {
+  display: flex;
+  flex-wrap: nowrap;
+  flex: 0;
 }
 
 table,
@@ -31,9 +42,18 @@ tr,
 th,
 td {
   text-align: center;
-  border-collapse: separate;
   border-spacing: 0;
-  font-size: 16px;
+  font-size: 14px;
+  word-break: break-all;
+}
+th {
+  word-break: normal;
+}
+th,
+td {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 table button {
   border-radius: 0;
@@ -137,13 +157,64 @@ table button {
 .delivery:hover {
   background-color: blanchedalmond;
 }
-
+.product-img-header,
+.product-img {
+  max-width: 50px;
+  width: 100%;
+}
+.productTitleProvider-header,
 .productTitleProvider {
-  width: 300px;
+  min-width: 300px;
+  max-width: 300px;
+  /* width: 100%; */
+}
+.warehouse-header,
+.warehouse {
+  max-width: 185px;
+  width: 100%;
+}
+.articleNumberOzon-header,
+.articleNumberOzon {
+  max-width: 185px;
+  width: 100%;
+}
+.articleNumberOzon {
+  font-size: 13px;
+}
+.articleNumberProvider-header,
+.articleNumberProvider {
+  max-width: 185px;
+  width: 100%;
+}
+.provider-header,
+.provider {
+  max-width: 185px;
+  width: 100%;
+}
+.numberInBox-header,
+.minimum-header,
+.productInTransit-header,
+.availableToSale-header,
+.fullCount-header,
+.delivery-header,
+.volume-header,
+.volume-summ-header,
+.numberInBox,
+.minimum,
+.productInTransit,
+.availableToSale,
+.fullCount,
+.delivery,
+.volume,
+.volume-summ {
+  max-width: 50px;
+  width: 100%;
 }
 
-.warehouse {
-  width: 210px;
+.update-header,
+.update {
+  max-width: 32px;
+  width: 100%;
 }
 
 button#update-product {
