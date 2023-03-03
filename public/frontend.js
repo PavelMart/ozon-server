@@ -3,15 +3,15 @@ let filterType = null;
 let filterValue = null;
 let updateProductId = null;
 
-// const config = {
-//   URL: "http://141.8.193.46",
-//   API_URL: `http://141.8.193.46/api`,
-// };
-
 const config = {
-  URL: "http://localhost:3000",
-  API_URL: `http://localhost:3000/api`,
+  URL: "http://141.8.193.46",
+  API_URL: `http://141.8.193.46/api`,
 };
+
+// const config = {
+//   URL: "http://localhost:3000",
+//   API_URL: `http://localhost:3000/api`,
+// };
 
 const loading = document.getElementById("loading");
 
