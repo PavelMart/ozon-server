@@ -46,6 +46,9 @@ const articleNumberSelect = document.getElementById("article-for-summ");
 const mainWarehouseSelect = document.getElementById("main-warehouse");
 const secondWarehousesSelect = document.getElementById("second-warehouses");
 
+const mainWarehouseLabel = document.querySelector("label[name='main-warehouse'");
+const secondWarehousesLabel = document.querySelector("label[name='second-warehouses'");
+
 const arrayRender = (array, templateCallback) => {
   return array.map(templateCallback).join("");
 };
@@ -376,6 +379,8 @@ uploadXlsxForm.addEventListener("submit", async (e) => {
 
 summWarehouseForm.addEventListener("submit", async (e) => {
   await postData(e, "summ-warehouses");
+  mainWarehouseLabel.style.display = "none";
+  secondWarehousesLabel.style.display = "none";
   mainWarehouseSelect.style.display = "none";
   secondWarehousesSelect.style.display = "none";
   resetAll();
@@ -438,12 +443,14 @@ articleNumberSelect.addEventListener("change", (e) => {
   articleNumber = e.target.value;
   renderMainWarehouseOptions(articleNumber);
   mainWarehouseSelect.style.display = "block";
+  mainWarehouseLabel.style.display = "block";
 });
 
 mainWarehouseSelect.addEventListener("change", (e) => {
   firstWarehouse = e.target.value;
   renderSecondWarehouseOptions(articleNumber, firstWarehouse);
   secondWarehousesSelect.style.display = "block";
+  secondWarehousesLabel.style.display = "block";
 });
 
 volumeInputs.forEach((i) => {
