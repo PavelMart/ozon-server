@@ -226,3 +226,13 @@ button#update-product {
   min-width: 30px;
   min-height: 30px;
 }
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+}
+
+.buttons button {
+  margin-bottom: 10px;
+}

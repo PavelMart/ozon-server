@@ -2,9 +2,8 @@ let data = null;
 let filterType = null;
 let filterValue = null;
 let updateProductId = null;
-
-let articleNumber = null;
 let firstWarehouse = null;
+let articleForUpdate = null;
 
 const config = {
   URL: "http://141.8.193.46",
@@ -27,6 +26,7 @@ const createProductForm = document.getElementById("create-product-form");
 const updateProductForm = document.getElementById("update-product-form");
 const updateDeliveryForm = document.getElementById("update-delivery-form");
 const updateApiKeyForm = document.getElementById("update-api-key-form");
+const updateArticleForm = document.getElementById("update-article-form");
 const uploadXlsxForm = document.getElementById("upload-xlsx-form");
 const summWarehouseForm = document.getElementById("summ-warehouse-form");
 
@@ -36,18 +36,15 @@ const volumeItog = document.getElementById("volume-itog");
 
 const firstSelect = document.getElementById("first-step");
 const secondSelect = document.getElementById("second-step");
+const articleForUpdateSelect = document.getElementById("article-for-update");
+const mainWarehouseSelect = document.getElementById("main-warehouse");
+const secondWarehousesSelect = document.getElementById("second-warehouses");
+const secondWarehousesLabel = document.getElementById("second-warehouses-label");
 
 const buttonsBlock = document.querySelector(".buttons");
 const getXlsxBtn = document.getElementById("get-xlsx");
 
 const volumeInputs = document.querySelectorAll('input[name="volume"]');
-
-const articleNumberSelect = document.getElementById("article-for-summ");
-const mainWarehouseSelect = document.getElementById("main-warehouse");
-const secondWarehousesSelect = document.getElementById("second-warehouses");
-
-const mainWarehouseLabel = document.querySelector("label[name='main-warehouse'");
-const secondWarehousesLabel = document.querySelector("label[name='second-warehouses'");
 
 const arrayRender = (array, templateCallback) => {
   return array.map(templateCallback).join("");
@@ -150,49 +147,34 @@ const renderOptions = (value) => {
   secondSelect.insertAdjacentHTML("beforeend", optionsList);
 };
 
-const renderArticleNumberOptions = () => {
-  articleNumberSelect.innerHTML = "<option selected disabled>Выберите значение</option>";
-  const allOptions = data.map((i) => i["articleNumberOzon"]);
-  const uniqueOptions = new Set(allOptions);
+const renderSelectOptions = (select, value, without) => {
+  let options;
+  select.innerHTML = "<option selected disabled>Выберите значение</option>";
+  const allOptions = data.map((i) => i[value]);
+  options = new Set(allOptions);
 
-  articleNumberSelect.insertAdjacentHTML(
-    "beforeend",
-    arrayRender([...uniqueOptions], (o) => `<option value="${o}">${o}</option>`)
-  );
-};
+  if (without) options = [...options].filter((i) => i !== firstWarehouse);
 
-const renderMainWarehouseOptions = (articleNumber) => {
-  mainWarehouseSelect.innerHTML = "<option selected disabled>Выберите значение</option>";
-  const items = data.filter((i) => i.articleNumberOzon === articleNumber);
-  const options = items.map((i) => i["warehouse"]);
-  const uniqueOptions = new Set(options);
-
-  mainWarehouseSelect.insertAdjacentHTML(
-    "beforeend",
-    arrayRender([...uniqueOptions], (o) => `<option value="${o}">${o}</option>`)
-  );
-};
-
-const renderSecondWarehouseOptions = (articleNumber, firstWarehouse) => {
-  secondWarehousesSelect.innerHTML = "<option selected disabled>Выберите значение</option>";
-  const items = data.filter((i) => i.articleNumberOzon === articleNumber);
-  console.log(data);
-  const allOptions = items.map((i) => i["warehouse"]);
-  const uniqueOptions = new Set(allOptions);
-
-  const options = [...uniqueOptions].filter((i) => i !== firstWarehouse);
-
-  secondWarehousesSelect.insertAdjacentHTML(
+  select.insertAdjacentHTML(
     "beforeend",
     arrayRender([...options], (o) => `<option value="${o}">${o}</option>`)
   );
+};
+
+const renderMainWarehouseOptions = () => {
+  renderSelectOptions(mainWarehouseSelect, "warehouse");
+};
+
+const renderSecondWarehouseOptions = (firstWarehouse) => {
+  renderSelectOptions(secondWarehousesSelect, "warehouse", firstWarehouse);
 };
 
 const render = () => {
   const filteredData = filterData();
   renderTableBody(filteredData);
   renderCalculateData(filteredData);
-  renderArticleNumberOptions();
+  renderMainWarehouseOptions();
+  renderSelectOptions(articleForUpdateSelect, "articleNumberOzon");
 };
 
 const resetAll = () => {
@@ -240,6 +222,7 @@ buttonsBlock.addEventListener("click", async (e) => {
   if (e.target.closest("#upload-xlsx")) openPopup(uploadXlsxForm);
   if (e.target.closest("#update-api-key")) openPopup(updateApiKeyForm);
   if (e.target.closest("#summ-warehouse")) openPopup(summWarehouseForm);
+  if (e.target.closest("#update-article")) openPopup(updateArticleForm);
   if (e.target.closest("#upload-products")) uploadProductsFromOzon();
 });
 
@@ -379,10 +362,14 @@ uploadXlsxForm.addEventListener("submit", async (e) => {
 
 summWarehouseForm.addEventListener("submit", async (e) => {
   await postData(e, "summ-warehouses");
-  mainWarehouseLabel.style.display = "none";
   secondWarehousesLabel.style.display = "none";
-  mainWarehouseSelect.style.display = "none";
   secondWarehousesSelect.style.display = "none";
+  resetAll();
+  render();
+});
+
+updateArticleForm.addEventListener("submit", async (e) => {
+  await postData(e, "update-articles");
   resetAll();
   render();
 });
@@ -439,16 +426,9 @@ secondSelect.addEventListener("change", (e) => {
   render();
 });
 
-articleNumberSelect.addEventListener("change", (e) => {
-  articleNumber = e.target.value;
-  renderMainWarehouseOptions(articleNumber);
-  mainWarehouseSelect.style.display = "block";
-  mainWarehouseLabel.style.display = "block";
-});
-
 mainWarehouseSelect.addEventListener("change", (e) => {
   firstWarehouse = e.target.value;
-  renderSecondWarehouseOptions(articleNumber, firstWarehouse);
+  renderSecondWarehouseOptions(firstWarehouse);
   secondWarehousesSelect.style.display = "block";
   secondWarehousesLabel.style.display = "block";
 });
@@ -457,6 +437,17 @@ volumeInputs.forEach((i) => {
   i.addEventListener("change", (e) => {
     i.value = e.target.value.replace(/\,/, ".");
   });
+});
+
+articleForUpdateSelect.addEventListener("change", (e) => {
+  const value = e.target.value;
+  const valuesObject = data.filter((elem) => elem.articleNumberOzon === value)[0];
+
+  updateArticleForm.querySelector('input[name="productTitleProvider"]').value = valuesObject.productTitleProvider;
+  updateArticleForm.querySelector('input[name="articleNumberProvider"]').value = valuesObject.articleNumberProvider;
+  updateArticleForm.querySelector('input[name="provider"]').value = valuesObject.provider;
+  updateArticleForm.querySelector('input[name="numberInBox"]').value = valuesObject.numberInBox;
+  updateArticleForm.querySelector('input[name="volume"]').value = valuesObject.volume;
 });
 
 start();

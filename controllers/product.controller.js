@@ -37,6 +37,21 @@ class ProductController {
     }
   }
 
+  async updateArticles(req, res, next) {
+    try {
+      const body = req.body;
+      const files = req.files;
+
+      if (files) await productService.updateArticles(body, files["img"]);
+      else await productService.updateArticles(body);
+
+      const products = await productService.getProducts();
+      return res.json(products);
+    } catch (error) {
+      return next(ApiError.BadRequest(error.message));
+    }
+  }
+
   async updateChecked(req, res, next) {
     try {
       await productService.updateChecked(req.params.id, req.query.checked);

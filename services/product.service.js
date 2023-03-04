@@ -143,6 +143,22 @@ class ProductService {
     }
   }
 
+  async updateArticles(data, img) {
+    try {
+      const products = await Product.findAll({ where: { articleNumberOzon: data["article-for-update"] } });
+
+      console.log(products.length);
+
+      for (let i = 0; i < products.length; i++) {
+        await this.updateProduct(products[i].id, data, img);
+      }
+
+      return;
+    } catch (error) {
+      throw ApiError.BadRequest(error.message);
+    }
+  }
+
   async updateChecked(id, checked) {
     try {
       const product = await Product.findOne({ where: { id } });
@@ -186,32 +202,42 @@ class ProductService {
 
   async summWarehouses(data) {
     try {
-      const mainWarehouse = await Product.findOne({
-        where: { warehouse: data["main-warehouse"], articleNumberOzon: data["article-for-summ"] },
+      const mainWarehouseArray = await Product.findAll({
+        where: { warehouse: data["main-warehouse"] },
       });
 
-      let array = [];
+      // for (let i = 0; i < mainWarehouseArray.length; i++) {}
 
-      if (typeof data["second-warehouses"] === "object") array = [...data["second-warehouses"]];
-      else array.push(data["second-warehouses"]);
+      let entryDataArray = [];
+      let secondDataArray = [];
 
-      for (let i = 0; i < array.length; i++) {
-        const currentWarehouse = await Product.findOne({ where: { warehouse: array[i], articleNumberOzon: data["article-for-summ"] } });
+      if (typeof data["second-warehouses"] === "object") entryDataArray = [...data["second-warehouses"]];
+      else entryDataArray.push(data["second-warehouses"]);
 
-        await mainWarehouse.update({
-          productInTransit: +currentWarehouse.productInTransit + +mainWarehouse.productInTransit,
-          availableToSale: +currentWarehouse.availableToSale + +mainWarehouse.availableToSale,
-          reserve: +currentWarehouse.reserve + +mainWarehouse.reserve,
-          fullCount: +currentWarehouse.fullCount + +mainWarehouse.fullCount,
-          delivery: +currentWarehouse.delivery + +mainWarehouse.delivery,
-        });
+      for (let i = 0; i < entryDataArray.length; i++) {
+        const currentWarehouses = await Product.findAll({ where: { warehouse: entryDataArray[i] } });
 
-        await Product.destroy({ where: { id: currentWarehouse.id } });
-        console.log(i);
+        secondDataArray.push(...currentWarehouses);
       }
 
-      await mainWarehouse.save();
-
+      for (let i = 0; i < mainWarehouseArray.length; i++) {
+        for (let j = 0; j < secondDataArray.length; j++) {
+          if (mainWarehouseArray[i].articleNumberOzon === secondDataArray[j].articleNumberOzon) {
+            await mainWarehouseArray[i].update({
+              productInTransit: +secondDataArray[j].productInTransit + +mainWarehouseArray[i].productInTransit,
+              availableToSale: +secondDataArray[j].availableToSale + +mainWarehouseArray[i].availableToSale,
+              reserve: +secondDataArray[j].reserve + +mainWarehouseArray[i].reserve,
+              fullCount: +secondDataArray[j].fullCount + +mainWarehouseArray[i].fullCount,
+              delivery: +secondDataArray[j].delivery + +mainWarehouseArray[i].delivery,
+            });
+            await Product.destroy({ where: { id: secondDataArray[j].id } });
+          } else {
+            await secondDataArray[j].update({ warehouse: mainWarehouseArray[i].warehouse });
+            await secondDataArray[j].save();
+          }
+        }
+        await mainWarehouseArray[i].save();
+      }
       return;
     } catch (error) {
       throw ApiError.BadRequest(error.message);

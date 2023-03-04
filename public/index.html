@@ -19,6 +19,7 @@
           <button id="upload-xlsx">Загрузить Excel</button>
           <button id="update-api-key">Сменить ключ API</button>
           <button id="summ-warehouse">Объединить склады</button>
+          <button id="update-article">Редактировать данные артикула Озон</button>
         </div>
         <div>
           <div>Общее количество разных артикулов - <span id="articuls-itog"></span></div>
@@ -134,13 +135,35 @@
         </form>
 
         <form class="form" id="summ-warehouse-form">
-          <label for="article-for-summ">Выберите артикул Озон</label>
-          <select name="article-for-summ" id="article-for-summ"></select>
-          <label for="main-warehouse" style="display: none">Выберите основной склад</label>
-          <select name="main-warehouse" id="main-warehouse" style="display: none"></select>
-          <label for="second-warehouses" style="display: none">Выберите склады, которые хотите объединить с основным</label>
+          <label for="main-warehouse">Выберите склад, в который хотите добавить товары</label>
+          <select name="main-warehouse" id="main-warehouse"></select>
+          <label for="second-warehouses" id="second-warehouses-label" style="display: none"
+            >Выберите склады, из который хотите добавить товары <br />
+            (Для выбора нескольких значений зажмите CTRL)</label
+          >
           <select name="second-warehouses" id="second-warehouses" multiple style="display: none"></select>
           <button type="submit">Объединить</button>
+        </form>
+
+        <form class="form" id="update-article-form">
+          <label for="article-for-update">Выберите артикул Озон</label>
+          <select name="article-for-update" id="article-for-update" required></select>
+          <label>Название товара у поставщика</label>
+          <input required name="productTitleProvider" type="text" placeholder="Название товара у поставщика" />
+          <label>Артикул поставщика</label>
+          <input required name="articleNumberProvider" type="text" placeholder="Артикул поставщика" />
+          <label>Поставщик</label>
+          <input required name="provider" type="text" placeholder="Поставщик" />
+          <label>Штук в коробке</label>
+          <input required name="numberInBox" type="number" placeholder="Штук в коробке" />
+          <label>Объем в литрах</label>
+          <input required name="volume" type="text" placeholder="Объем в литрах" />
+          <label>Минимальное количество на складе</label>
+          <div class="upload-img">
+            <label for="img">Добавить изображение</label>
+            <input name="img" id="img" type="file" />
+          </div>
+          <button type="submit">Отправить</button>
         </form>
       </div>
     </div>
