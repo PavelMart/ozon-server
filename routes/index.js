@@ -8,11 +8,12 @@ const router = new Router();
 router.post("/create-product", productController.createProduct);
 router.post("/update-product/:id", productController.updateProduct);
 router.post("/upload-xlsx", productController.uploadXlsx);
+router.post("/update-delivery/:id", productController.updateDelivery);
+router.post("/update-api-key", apiController.updateApiKey);
+router.post("/summ-warehouses", productController.summWarehouses);
 router.get("/", productController.getAll);
 router.get("/upload-from-ozon", productController.uploadFromOzon);
 router.get("/update-checked/:id", productController.updateChecked);
-router.get("/update-delivery/:id", productController.updateDelivery);
-router.get("/update-api-key", apiController.updateApiKey);
 router.get("/create-book", bookController.createBook);
 
 module.exports = router;

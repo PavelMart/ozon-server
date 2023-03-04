@@ -3,6 +3,9 @@ let filterType = null;
 let filterValue = null;
 let updateProductId = null;
 
+let articleNumber = null;
+let firstWarehouse = null;
+
 const config = {
   URL: "http://141.8.193.46",
   API_URL: `http://141.8.193.46/api`,
@@ -19,16 +22,13 @@ const table = document.getElementById("table");
 const tableBody = document.getElementById("table-body");
 
 const popup = document.getElementById("popup");
-const popupCreate = document.getElementById("popup-create-product");
-const popupUpload = document.getElementById("popup-upload");
-const popupUpdateDelivery = document.getElementById("popup-update-delivery");
-const popupUpdateApiKey = document.getElementById("popup-update-api-key");
 
 const createProductForm = document.getElementById("create-product-form");
 const updateProductForm = document.getElementById("update-product-form");
 const updateDeliveryForm = document.getElementById("update-delivery-form");
 const updateApiKeyForm = document.getElementById("update-api-key-form");
 const uploadXlsxForm = document.getElementById("upload-xlsx-form");
+const summWarehouseForm = document.getElementById("summ-warehouse-form");
 
 const articulsItog = document.getElementById("articuls-itog");
 const countItog = document.getElementById("count-itog");
@@ -37,20 +37,32 @@ const volumeItog = document.getElementById("volume-itog");
 const firstSelect = document.getElementById("first-step");
 const secondSelect = document.getElementById("second-step");
 
-const uploadProductsBtn = document.getElementById("upload-products");
-const updateApiKeyBtn = document.getElementById("update-api-key");
-const createProductBtn = document.getElementById("create-product");
+const buttonsBlock = document.querySelector(".buttons");
 const getXlsxBtn = document.getElementById("get-xlsx");
-const uploadXlsxBtn = document.getElementById("upload-xlsx");
 
 const volumeInputs = document.querySelectorAll('input[name="volume"]');
+
+const articleNumberSelect = document.getElementById("article-for-summ");
+const mainWarehouseSelect = document.getElementById("main-warehouse");
+const secondWarehousesSelect = document.getElementById("second-warehouses");
 
 const arrayRender = (array, templateCallback) => {
   return array.map(templateCallback).join("");
 };
 
-const filterData = (type, value) => {
-  if (type !== "empty") return data.filter((i) => i[type] === value);
+const filterData = () => {
+  const filterType = localStorage.getItem("filterType");
+  const filterValue = localStorage.getItem("filterValue");
+
+  if (filterType && filterType !== "empty" && filterValue !== "empty") {
+    if (filterType === "checked") {
+      return data.filter((i) => i[filterType] === true);
+    } else {
+      firstSelect.value = filterType;
+      secondSelect.value = filterValue;
+      return data.filter((i) => i[filterType] === filterValue);
+    }
+  }
   return data;
 };
 
@@ -116,27 +128,79 @@ const renderTableBody = (items) => {
   tableBody.innerHTML = rows;
 };
 
+const getUniqueOptions = (value) => {
+  const allOptions = data.map((i) => i[value]);
+
+  const options = new Set(allOptions);
+
+  return arrayRender([...options], (o) => `<option value="${o}">${o}</option>`);
+};
+
 const renderOptions = (value) => {
   secondSelect.innerHTML = `
     <option selected disabled>Выберите фильтр</option>
     <option value="empty">Без фильтра</option>
   `;
 
-  const allOptions = data.map((i) => i[value]);
-
-  const options = new Set(allOptions);
-
-  const optionsList = arrayRender([...options], (o) => `<option value="${o}">${o}</option>`);
+  const optionsList = getUniqueOptions(value);
 
   secondSelect.insertAdjacentHTML("beforeend", optionsList);
 };
 
-const render = (data) => {
-  renderTableBody(data);
-  renderCalculateData(data);
+const renderArticleNumberOptions = () => {
+  articleNumberSelect.innerHTML = "<option selected disabled>Выберите значение</option>";
+  const allOptions = data.map((i) => i["articleNumberOzon"]);
+  const uniqueOptions = new Set(allOptions);
+
+  articleNumberSelect.insertAdjacentHTML(
+    "beforeend",
+    arrayRender([...uniqueOptions], (o) => `<option value="${o}">${o}</option>`)
+  );
+};
+
+const renderMainWarehouseOptions = (articleNumber) => {
+  mainWarehouseSelect.innerHTML = "<option selected disabled>Выберите значение</option>";
+  const items = data.filter((i) => i.articleNumberOzon === articleNumber);
+  const options = items.map((i) => i["warehouse"]);
+  const uniqueOptions = new Set(options);
+
+  mainWarehouseSelect.insertAdjacentHTML(
+    "beforeend",
+    arrayRender([...uniqueOptions], (o) => `<option value="${o}">${o}</option>`)
+  );
+};
+
+const renderSecondWarehouseOptions = (articleNumber, firstWarehouse) => {
+  secondWarehousesSelect.innerHTML = "<option selected disabled>Выберите значение</option>";
+  const items = data.filter((i) => i.articleNumberOzon === articleNumber);
+  console.log(data);
+  const allOptions = items.map((i) => i["warehouse"]);
+  const uniqueOptions = new Set(allOptions);
+
+  const options = [...uniqueOptions].filter((i) => i !== firstWarehouse);
+
+  secondWarehousesSelect.insertAdjacentHTML(
+    "beforeend",
+    arrayRender([...options], (o) => `<option value="${o}">${o}</option>`)
+  );
+};
+
+const render = () => {
+  const filteredData = filterData();
+  renderTableBody(filteredData);
+  renderCalculateData(filteredData);
+  renderArticleNumberOptions();
+};
+
+const resetAll = () => {
+  localStorage.removeItem("filterType");
+  localStorage.removeItem("filterType");
+  getXlsxBtn.style.display = "none";
+  secondSelect.style.display = "none";
 };
 
 const start = async () => {
+  resetAll();
   try {
     loading.classList.add("active");
 
@@ -153,16 +217,27 @@ const start = async () => {
   }
 };
 
-createProductBtn.addEventListener("click", () => {
-  popupCreate.classList.add("active");
-});
+const uploadProductsFromOzon = async () => {
+  await getData("upload-from-ozon");
+  render();
+};
 
-uploadXlsxBtn.addEventListener("click", () => {
-  popupUpload.classList.add("active");
-});
+const openPopup = (form) => {
+  form.style.display = "flex";
+  popup.classList.add("active");
+};
 
-updateApiKeyBtn.addEventListener("click", () => {
-  popupUpdateApiKey.classList.add("active");
+const closePopup = () => {
+  [...document.querySelectorAll(".form")].forEach((elem) => (elem.style.display = "none"));
+  popup.classList.remove("active");
+};
+
+buttonsBlock.addEventListener("click", async (e) => {
+  if (e.target.closest("#create-product")) openPopup(createProductForm);
+  if (e.target.closest("#upload-xlsx")) openPopup(uploadXlsxForm);
+  if (e.target.closest("#update-api-key")) openPopup(updateApiKeyForm);
+  if (e.target.closest("#summ-warehouse")) openPopup(summWarehouseForm);
+  if (e.target.closest("#upload-products")) uploadProductsFromOzon();
 });
 
 tableBody.addEventListener("click", async (e) => {
@@ -177,26 +252,21 @@ tableBody.addEventListener("click", async (e) => {
     updateProductForm.querySelector('input[name="volume"]').value = updatingData.volume;
     updateProductForm.querySelector('input[name="minimum"]').value = updatingData.minimum;
 
-    popup.classList.add("active");
+    openPopup(updateProductForm);
   }
   if (e.target.closest(".delivery ")) {
     updateProductId = +e.target.dataset.id;
-    popupUpdateDelivery.classList.add("active");
+    openPopup(updateDeliveryForm);
   }
   if (e.target.closest(`input[type="checkbox"]`)) {
     const id = e.target.dataset.id;
     const checked = e.target.checked;
     try {
       const response = await fetch(`${config.API_URL}/update-checked/${id}?checked=${checked}`);
+
       data = await response.json();
 
-      const filterType = localStorage.getItem("filterType");
-      const filterValue = localStorage.getItem("filterValue");
-
-      firstSelect.value = filterType;
-      secondSelect.value = filterValue;
-
-      render(filterData(filterType, filterValue));
+      render();
     } catch (error) {
       return alert(`Что-то пошло не так, ${error.message}`);
     }
@@ -204,213 +274,120 @@ tableBody.addEventListener("click", async (e) => {
 });
 
 popup.addEventListener("click", (e) => {
-  if (!e.target.closest(".form")) popup.classList.remove("active");
+  if (!e.target.closest(".form")) closePopup();
 });
 
-popupUpload.addEventListener("click", (e) => {
-  if (!e.target.closest(".form")) popupUpload.classList.remove("active");
-});
-
-popupUpdateDelivery.addEventListener("click", (e) => {
-  if (!e.target.closest(".form")) popupUpdateDelivery.classList.remove("active");
-});
-
-popupUpdateApiKey.addEventListener("click", (e) => {
-  if (!e.target.closest(".form")) popupUpdateApiKey.classList.remove("active");
-});
-
-popupCreate.addEventListener("click", (e) => {
-  if (!e.target.closest(".form")) popupCreate.classList.remove("active");
-});
-
-createProductForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const inputs = document.querySelectorAll(".form input[type='text']");
+const deleteSpaces = (form) => {
+  const inputs = form.querySelectorAll("input[type='text']");
 
   [...inputs].forEach((i) => {
     i.value = i.value.trim();
   });
+};
 
-  const formData = new FormData(e.target);
+const clearInputs = (form) => {
+  const inputElems = form.querySelectorAll("input");
 
-  popupCreate.classList.remove("active");
+  [...inputElems].forEach((i) => (i.value = ""));
+};
 
+const postData = async (e, address) => {
+  e.preventDefault();
+
+  deleteSpaces(e.target);
+
+  const body = new FormData(e.target);
+
+  closePopup();
   try {
     loading.classList.add("active");
 
-    const response = await fetch(`${config.API_URL}/create-product`, {
+    const response = await fetch(`${config.API_URL}/${address}`, {
       method: "POST",
-      body: formData,
+      body,
     });
 
     data = await response.json();
 
-    const inputElems = createProductForm.querySelectorAll("input");
-
-    [...inputElems].forEach((i) => (i.value = ""));
+    clearInputs(e.target);
 
     loading.classList.remove("active");
 
-    render(data);
+    return;
   } catch (error) {
     loading.classList.remove("active");
     return alert(`Что-то пошло не так, ${error.message}`);
   }
+};
+
+const getData = async (address) => {
+  closePopup();
+
+  try {
+    loading.classList.add("active");
+
+    const response = await fetch(`${config.API_URL}/${address}`);
+
+    const json = await response.json();
+
+    if (response.status !== 400 && typeof json === "object") data = json;
+
+    loading.classList.remove("active");
+  } catch (error) {
+    loading.classList.remove("active");
+    return alert(`Что-то пошло не так, ${error.message}`);
+  }
+};
+
+createProductForm.addEventListener("submit", async (e) => {
+  await postData(e, "create-product");
+  resetAll();
+  render();
 });
 
 updateProductForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const inputs = document.querySelectorAll(".form input[type='text']");
-
-  [...inputs].forEach((i) => {
-    i.value = i.value.trim();
-  });
-
-  const formData = new FormData(e.target);
-
-  popup.classList.remove("active");
-  try {
-    loading.classList.add("active");
-
-    const response = await fetch(`${config.API_URL}/update-product/${updateProductId}`, {
-      method: "POST",
-      body: formData,
-    });
-
-    data = await response.json();
-
-    const inputElems = updateProductForm.querySelectorAll("input");
-
-    [...inputElems].forEach((i) => (i.value = ""));
-
-    loading.classList.remove("active");
-
-    const filterType = localStorage.getItem("filterType");
-    const filterValue = localStorage.getItem("filterValue");
-
-    firstSelect.value = filterType;
-    secondSelect.value = filterValue;
-
-    render(filterData(filterType, filterValue));
-  } catch (error) {
-    loading.classList.remove("active");
-    return alert(`Что-то пошло не так, ${error.message}`);
-  }
+  await postData(e, `update-product/${updateProductId}`);
+  render();
 });
 
 updateDeliveryForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const formData = new FormData(e.target);
-
-  const delivery = formData.get("update-delivery");
-
-  popupUpdateDelivery.classList.remove("active");
-  try {
-    loading.classList.add("active");
-
-    const response = await fetch(`${config.API_URL}/update-delivery/${updateProductId}?delivery=${delivery}`);
-
-    data = await response.json();
-
-    loading.classList.remove("active");
-
-    const filterType = localStorage.getItem("filterType");
-    const filterValue = localStorage.getItem("filterValue");
-
-    firstSelect.value = filterType;
-    secondSelect.value = filterValue;
-
-    render(filterData(filterType, filterValue));
-  } catch (error) {
-    loading.classList.remove("active");
-    return alert(`Что-то пошло не так, ${error.message}`);
-  }
+  await postData(e, `update-delivery/${updateProductId}`);
+  render();
 });
 
 updateApiKeyForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const formData = new FormData(e.target);
-
-  const ApiKey = formData.get("update-api-key");
-
-  popupUpdateApiKey.classList.remove("active");
-  try {
-    loading.classList.add("active");
-
-    await fetch(`${config.API_URL}/update-api-key?key=${ApiKey}`);
-
-    loading.classList.remove("active");
-
-    alert("Смена ключа успешна");
-  } catch (error) {
-    loading.classList.remove("active");
-    alert(`Что-то пошло не так, ${error.message}`);
-  }
+  await postData(e, "update-api-key");
 });
 
 uploadXlsxForm.addEventListener("submit", async (e) => {
   e.preventDefault();
+
   const formData = new FormData(e.target);
 
-  try {
-    const ext = formData.get("xlsx").name.split(".").pop();
+  const ext = formData.get("xlsx").name.split(".").pop();
 
-    if (ext !== "xlsx") return alert("Неверное расширение файла");
-
-    popupUpload.classList.remove("active");
-    loading.classList.add("active");
-
-    const response = await fetch(`${config.API_URL}/upload-xlsx`, {
-      method: "POST",
-      body: formData,
-    });
-
-    data = await response.json();
-
-    loading.classList.remove("active");
-
-    render(data);
-  } catch (error) {
-    loading.classList.remove("active");
-    return alert(`Файл не был загружен, ${error.message}`);
+  if (ext !== "xlsx") alert("Неверное расширение файла");
+  else {
+    await postData(e, "upload-xlsx");
+    resetAll();
+    render();
   }
+});
+
+summWarehouseForm.addEventListener("submit", async (e) => {
+  await postData(e, "summ-warehouses");
+  mainWarehouseSelect.style.display = "none";
+  secondWarehousesSelect.style.display = "none";
+  resetAll();
+  render();
 });
 
 getXlsxBtn.addEventListener("click", async () => {
-  try {
-    loading.classList.add("active");
-    await fetch(`${config.API_URL}/create-book?filterType=${filterType}&filterValue=${filterValue}`);
-    window.open(`${config.URL}/${createDate()}-${filterValue.trim()}.xlsx`, "_blank");
-    loading.classList.remove("active");
-    getXlsxBtn.style.display = "none";
-    secondSelect.style.display = "none";
-    firstSelect.value = "empty";
-    render(data);
-  } catch (error) {
-    loading.classList.remove("active");
-    return alert(`Что-то пошло не так, ${error.message}`);
-  }
-});
+  await getData(`create-book?filterType=${filterType}&filterValue=${filterValue}`);
 
-uploadProductsBtn.addEventListener("click", async () => {
-  try {
-    loading.classList.add("active");
+  window.open(`${config.URL}/${createDate()}-${filterValue.trim()}.xlsx`, "_blank");
 
-    const response = await fetch(`${config.API_URL}/upload-from-ozon`);
-
-    data = await response.json();
-
-    loading.classList.remove("active");
-
-    render(data);
-  } catch (error) {
-    loading.classList.remove("active");
-    return alert(`Что-то пошло не так, ${error.message}`);
-  }
+  render();
 });
 
 firstSelect.addEventListener("change", (e) => {
@@ -421,16 +398,16 @@ firstSelect.addEventListener("change", (e) => {
   if (filterType === "empty") {
     getXlsxBtn.style.display = "none";
     secondSelect.style.display = "none";
-    renderTableBody(data);
-    renderCalculateData(data);
+    render();
     return;
   }
 
   if (filterType === "checked") {
     getXlsxBtn.style.display = "none";
     secondSelect.style.display = "none";
-    renderTableBody(filterData(filterType, true));
-    renderCalculateData(filterData(filterType, true));
+    localStorage.setItem("filterValue", true);
+
+    render();
     return;
   }
 
@@ -446,7 +423,7 @@ secondSelect.addEventListener("change", (e) => {
 
   if (filterValue === "empty") {
     getXlsxBtn.style.display = "none";
-    return renderTableBody(data);
+    return render();
   }
 
   const filteredData = filterData(filterType, filterValue);
@@ -454,8 +431,19 @@ secondSelect.addEventListener("change", (e) => {
   if (filterType === "productTitleProvider" || filterType === "articleNumberOzon" || !filteredData.length)
     getXlsxBtn.style.display = "none";
   else getXlsxBtn.style.display = "";
-  renderTableBody(filteredData);
-  renderCalculateData(filteredData);
+  render();
+});
+
+articleNumberSelect.addEventListener("change", (e) => {
+  articleNumber = e.target.value;
+  renderMainWarehouseOptions(articleNumber);
+  mainWarehouseSelect.style.display = "block";
+});
+
+mainWarehouseSelect.addEventListener("change", (e) => {
+  firstWarehouse = e.target.value;
+  renderSecondWarehouseOptions(articleNumber, firstWarehouse);
+  secondWarehousesSelect.style.display = "block";
 });
 
 volumeInputs.forEach((i) => {

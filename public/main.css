@@ -110,7 +110,7 @@ table button {
   padding: 30px;
   max-width: 500px;
   width: 100%;
-  display: flex;
+  display: none;
   flex-direction: column;
   align-items: stretch;
   background-color: white;
@@ -120,7 +120,8 @@ table button {
   margin-bottom: 15px;
 }
 
-.form input {
+.form input,
+.form select {
   margin-bottom: 10px;
   padding: 5px 10px;
 }
@@ -175,20 +176,20 @@ table button {
 }
 .articleNumberOzon-header,
 .articleNumberOzon {
-  max-width: 185px;
+  max-width: 250px;
   width: 100%;
 }
 .articleNumberOzon {
-  font-size: 13px;
+  font-size: 16px;
 }
 .articleNumberProvider-header,
 .articleNumberProvider {
-  max-width: 185px;
+  max-width: 140px;
   width: 100%;
 }
 .provider-header,
 .provider {
-  max-width: 185px;
+  max-width: 140px;
   width: 100%;
 }
 .numberInBox-header,

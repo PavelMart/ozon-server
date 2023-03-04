@@ -4,7 +4,9 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Поставки Ozon</title>
+    <link rel="icon" href="icon.webp" />
+
     <link rel="stylesheet" href="main.css" />
   </head>
   <body>
@@ -16,6 +18,7 @@
           <button id="upload-products">Загрузить данные с Озон</button>
           <button id="upload-xlsx">Загрузить Excel</button>
           <button id="update-api-key">Сменить ключ API</button>
+          <button id="summ-warehouse">Объединить склады</button>
         </div>
         <div>
           <div>Общее количество разных артикулов - <span id="articuls-itog"></span></div>
@@ -86,9 +89,7 @@
           </div>
           <button type="submit">Отправить</button>
         </form>
-      </div>
 
-      <div id="popup-create-product" class="popup">
         <form class="form" id="create-product-form">
           <h3>Добавить товар</h3>
           <label>Название товара у поставщика</label>
@@ -115,27 +116,31 @@
           </div>
           <button type="submit">Отправить</button>
         </form>
-      </div>
 
-      <div class="popup" id="popup-upload">
         <form class="form" id="upload-xlsx-form">
           <h3>Загрузить Excel</h3>
           <input required name="xlsx" type="file" />
           <button type="submit">Добавить</button>
         </form>
-      </div>
 
-      <div class="popup" id="popup-update-delivery">
         <form class="form" id="update-delivery-form">
           <input required name="update-delivery" type="number" placeholder="Введите новое значение" />
           <button type="submit">Обновить</button>
         </form>
-      </div>
 
-      <div class="popup" id="popup-update-api-key">
         <form class="form" id="update-api-key-form">
           <input required name="update-api-key" type="text" placeholder="Введите новое значение" />
           <button type="submit">Обновить</button>
+        </form>
+
+        <form class="form" id="summ-warehouse-form">
+          <label for="article-for-summ">Выберите артикул Озон</label>
+          <select name="article-for-summ" id="article-for-summ"></select>
+          <label for="main-warehouse" style="display: none">Выберите основной склад</label>
+          <select name="main-warehouse" id="main-warehouse" style="display: none"></select>
+          <label for="second-warehouses" style="display: none">Выберите склады, которые хотите объединить с основным</label>
+          <select name="second-warehouses" id="second-warehouses" multiple style="display: none"></select>
+          <button type="submit">Объединить</button>
         </form>
       </div>
     </div>

@@ -57,7 +57,6 @@ class ProductService {
 
   async createProductsFromOzon() {
     const { key } = await apiService.getApiKey();
-    console.log(key);
     const instance = axios.create({
       headers: {
         "Client-Id": "576811",
@@ -115,31 +114,6 @@ class ProductService {
       delivery: fullDelivery,
     };
   }
-
-  // calculateProductDataV2(obj, product) {
-  //   let checked = false;
-
-  //   const fullCount = +obj.productInTransit + +obj.availableToSale;
-
-  //   let fullDelivery = 0;
-  //   const delivery = +product.minimum - fullCount;
-
-  //   if (delivery > 0) {
-  //     const boxesCount = Math.floor(delivery / product.numberInBox);
-
-  //     fullDelivery = boxesCount * product.numberInBox;
-
-  //     if (fullDelivery < delivery) fullDelivery = (boxesCount + 1) * product.numberInBox;
-  //   }
-
-  //   if (fullDelivery !== 0) checked = true;
-
-  //   return {
-  //     checked,
-  //     fullCount,
-  //     delivery: fullDelivery,
-  //   };
-  // }
 
   async updateProduct(id, obj, img) {
     try {
@@ -205,6 +179,40 @@ class ProductService {
       else products = await Product.findAll({ order: ["id"] });
 
       return products;
+    } catch (error) {
+      throw ApiError.BadRequest(error.message);
+    }
+  }
+
+  async summWarehouses(data) {
+    try {
+      const mainWarehouse = await Product.findOne({
+        where: { warehouse: data["main-warehouse"], articleNumberOzon: data["article-for-summ"] },
+      });
+
+      let array = [];
+
+      if (typeof data["second-warehouses"] === "object") array = [...data["second-warehouses"]];
+      else array.push(data["second-warehouses"]);
+
+      for (let i = 0; i < array.length; i++) {
+        const currentWarehouse = await Product.findOne({ where: { warehouse: array[i], articleNumberOzon: data["article-for-summ"] } });
+
+        await mainWarehouse.update({
+          productInTransit: +currentWarehouse.productInTransit + +mainWarehouse.productInTransit,
+          availableToSale: +currentWarehouse.availableToSale + +mainWarehouse.availableToSale,
+          reserve: +currentWarehouse.reserve + +mainWarehouse.reserve,
+          fullCount: +currentWarehouse.fullCount + +mainWarehouse.fullCount,
+          delivery: +currentWarehouse.delivery + +mainWarehouse.delivery,
+        });
+
+        await Product.destroy({ where: { id: currentWarehouse.id } });
+        console.log(i);
+      }
+
+      await mainWarehouse.save();
+
+      return;
     } catch (error) {
       throw ApiError.BadRequest(error.message);
     }

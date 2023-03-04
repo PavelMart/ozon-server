@@ -49,7 +49,7 @@ class ProductController {
 
   async updateDelivery(req, res, next) {
     try {
-      await productService.updateDelivery(req.params.id, req.query.delivery);
+      await productService.updateDelivery(req.params.id, req.body["update-delivery"]);
       const products = await productService.getProducts();
       return res.json(products);
     } catch (error) {
@@ -80,6 +80,17 @@ class ProductController {
     try {
       const { xlsx } = req.files;
       const products = await bookService.readBook(xlsx);
+      return res.json(products);
+    } catch (error) {
+      return next(ApiError.BadRequest(error.message));
+    }
+  }
+
+  async summWarehouses(req, res, next) {
+    try {
+      const body = req.body;
+      await productService.summWarehouses(body);
+      const products = await productService.getProducts();
       return res.json(products);
     } catch (error) {
       return next(ApiError.BadRequest(error.message));

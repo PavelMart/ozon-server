@@ -4,7 +4,7 @@ const apiService = require("../services/api.service");
 class ApiController {
   async updateApiKey(req, res, next) {
     try {
-      const { key } = req.query;
+      const key = req.body["update-api-key"];
       console.log(key);
       await apiService.updateApiKey(key);
       return res.json("ok");
