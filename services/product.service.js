@@ -147,10 +147,40 @@ class ProductService {
     try {
       const products = await Product.findAll({ where: { articleNumberOzon: data["article-for-update"] } });
 
-      console.log(products.length);
-
       for (let i = 0; i < products.length; i++) {
-        await this.updateProduct(products[i].id, data, img);
+        let fullName = "";
+
+        if (img) {
+          const ext = img.name.split(".").pop();
+          fullName = `${uuid.v4()}.${ext}`;
+
+          const filePath = path.join(__dirname, "..", "public", fullName);
+
+          await img.mv(filePath);
+        }
+
+        let checked = false;
+
+        const fullCount = +products[i].productInTransit + +products[i].availableToSale;
+
+        let fullDelivery = 0;
+
+        const delivery = +products[i].minimum - fullCount;
+
+        if (delivery > 0) {
+          const boxesCount = Math.floor(delivery / data.numberInBox);
+
+          fullDelivery = boxesCount * data.numberInBox;
+
+          if (fullDelivery < delivery) fullDelivery = (boxesCount + 1) * data.numberInBox;
+        }
+
+        if (fullDelivery !== 0) checked = true;
+
+        if (img) await products[i].update({ ...data, checked, delivery: fullDelivery, fullCount, img: fullName });
+        else await products[i].update({ ...data, checked, delivery: fullDelivery, fullCount });
+
+        await products[i].save();
       }
 
       return;
