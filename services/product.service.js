@@ -248,11 +248,18 @@ class ProductService {
     try {
       let products = null;
 
-      if (filter) products = await Product.findAll({ where: { [filter.filterType]: filter.filterValue }, order: ["articleNumberOzon"] });
+      if (filter)
+        products = await Product.findAll({
+          where: { [filter.filterType]: filter.filterValue },
+          order: [
+            ["articleNumberOzon", "ASC"],
+            ["warehouse", "ASC"],
+          ],
+        });
       else
         products = await Product.findAll({
           order: [
-            ["articleNumberOzon", "DESC"],
+            ["articleNumberOzon", "ASC"],
             ["warehouse", "ASC"],
           ],
         });
