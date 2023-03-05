@@ -11,6 +11,16 @@ class BookController {
       return next(ApiError.BadRequest(error.message));
     }
   }
+
+  deleteBook(req, res, next) {
+    try {
+      const { name } = req.query;
+      bookService.deleteBook(name);
+      return res.json("Отчет удален с сервера");
+    } catch (error) {
+      return next(ApiError.BadRequest(error.message));
+    }
+  }
 }
 
 module.exports = new BookController();

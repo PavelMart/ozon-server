@@ -16,5 +16,6 @@ router.get("/", productController.getAll);
 router.get("/upload-from-ozon", productController.uploadFromOzon);
 router.get("/update-checked/:id", productController.updateChecked);
 router.get("/create-book", bookController.createBook);
+router.get("/delete-book", bookController.deleteBook);
 
 module.exports = router;

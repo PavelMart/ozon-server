@@ -114,6 +114,18 @@ class BookService {
       throw ApiError.BadRequest(error.message);
     }
   }
+
+  async deleteBook(name) {
+    try {
+      const filePath = path.resolve(`public/${name}`);
+      unlink(filePath, (err) => {
+        if (err) console.log(err);
+      });
+      return;
+    } catch (error) {
+      throw ApiError.BadRequest(error.message);
+    }
+  }
 }
 
 module.exports = new BookService();

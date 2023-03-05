@@ -59,7 +59,14 @@ const filterData = () => {
     } else {
       firstSelect.value = filterType;
       secondSelect.value = filterValue;
-      return data.filter((i) => i[filterType] === filterValue);
+      let returnData = data.filter((i) => i[filterType] === filterValue);
+
+      if (filterType === "warehouse" || filterType === "provider")
+        return returnData.sort((a) => {
+          if (a.checked) return -1;
+          else return 1;
+        });
+      else return returnData;
     }
   }
   return data;
@@ -399,6 +406,8 @@ getXlsxBtn.addEventListener("click", async () => {
   await getData(`create-book?filterType=${filterType}&filterValue=${filterValue}`);
 
   window.open(`${config.URL}/${createDate()}-${filterValue.trim()}.xlsx`, "_blank");
+
+  setTimeout(() => getData(`delete-book?name=${createDate()}-${filterValue.trim()}.xlsx`), 10000);
 
   render();
 });
