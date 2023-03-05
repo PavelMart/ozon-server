@@ -184,12 +184,12 @@ table button {
 }
 .articleNumberProvider-header,
 .articleNumberProvider {
-  max-width: 140px;
+  max-width: 120px;
   width: 100%;
 }
 .provider-header,
 .provider {
-  max-width: 140px;
+  max-width: 120px;
   width: 100%;
 }
 .numberInBox-header,

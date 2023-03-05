@@ -4,6 +4,7 @@ const uuid = require("uuid");
 const { default: axios } = require("axios");
 const ApiError = require("../api/ApiError");
 const apiService = require("./api.service");
+const { unlink } = require("fs");
 
 class ProductService {
   async createProduct(body, img = null) {
@@ -115,9 +116,43 @@ class ProductService {
     };
   }
 
+  calculateProductDataV2(product, obj) {
+    let checked = false;
+
+    const fullCount = +obj.productInTransit + +obj.availableToSale;
+
+    let fullDelivery = 0;
+
+    const delivery = +obj.minimum - fullCount;
+
+    if (delivery > 0) {
+      const boxesCount = Math.floor(delivery / product.numberInBox);
+
+      fullDelivery = boxesCount * product.numberInBox;
+
+      if (fullDelivery < delivery) fullDelivery = (boxesCount + 1) * product.numberInBox;
+    }
+
+    if (fullDelivery !== 0) checked = true;
+
+    return {
+      checked,
+      fullCount,
+      delivery: fullDelivery,
+    };
+  }
+
   async updateProduct(id, obj, img) {
     try {
       const product = await Product.findOne({ where: { id } });
+
+      if (product.img !== "") {
+        const oldImgPath = path.join(__dirname, "..", "public", `${product.img}`);
+
+        unlink(oldImgPath, (err) => {
+          if (err) console.log(err);
+        });
+      }
 
       let fullName = "";
 
@@ -148,6 +183,14 @@ class ProductService {
       const products = await Product.findAll({ where: { articleNumberOzon: data["article-for-update"] } });
 
       for (let i = 0; i < products.length; i++) {
+        if (products[i].img !== "") {
+          const oldImgPath = path.join(__dirname, "..", "public", `${products[i].img}`);
+
+          unlink(oldImgPath, (err) => {
+            if (err) console.log(err);
+          });
+        }
+
         let fullName = "";
 
         if (img) {
@@ -159,26 +202,10 @@ class ProductService {
           await img.mv(filePath);
         }
 
-        let checked = false;
+        const calculatedData = this.calculateProductDataV2(data, products[i]);
 
-        const fullCount = +products[i].productInTransit + +products[i].availableToSale;
-
-        let fullDelivery = 0;
-
-        const delivery = +products[i].minimum - fullCount;
-
-        if (delivery > 0) {
-          const boxesCount = Math.floor(delivery / data.numberInBox);
-
-          fullDelivery = boxesCount * data.numberInBox;
-
-          if (fullDelivery < delivery) fullDelivery = (boxesCount + 1) * data.numberInBox;
-        }
-
-        if (fullDelivery !== 0) checked = true;
-
-        if (img) await products[i].update({ ...data, checked, delivery: fullDelivery, fullCount, img: fullName });
-        else await products[i].update({ ...data, checked, delivery: fullDelivery, fullCount });
+        if (img) await products[i].update({ ...data, ...calculatedData, img: fullName });
+        else await products[i].update({ ...data, ...calculatedData });
 
         await products[i].save();
       }
@@ -221,8 +248,14 @@ class ProductService {
     try {
       let products = null;
 
-      if (filter) products = await Product.findAll({ where: { [filter.filterType]: filter.filterValue }, order: ["id"] });
-      else products = await Product.findAll({ order: ["id"] });
+      if (filter) products = await Product.findAll({ where: { [filter.filterType]: filter.filterValue }, order: ["articleNumberOzon"] });
+      else
+        products = await Product.findAll({
+          order: [
+            ["articleNumberOzon", "DESC"],
+            ["warehouse", "ASC"],
+          ],
+        });
 
       return products;
     } catch (error) {
@@ -266,6 +299,8 @@ class ProductService {
             await secondDataArray[j].save();
           }
         }
+        const calculatedData = this.calculateProductDataV2(mainWarehouseArray[i], mainWarehouseArray[i]);
+        await mainWarehouseArray[i].update({ ...calculatedData });
         await mainWarehouseArray[i].save();
       }
       return;

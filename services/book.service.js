@@ -103,6 +103,10 @@ class BookService {
 
       await productService.createProductsFromArray(arrayForBd);
 
+      unlink(filePath, (err) => {
+        if (err) console.log(err);
+      });
+
       const products = await productService.getProducts();
 
       return products;
