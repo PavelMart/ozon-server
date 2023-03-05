@@ -252,14 +252,14 @@ class ProductService {
         products = await Product.findAll({
           where: { [filter.filterType]: filter.filterValue },
           order: [
-            ["productTitleProvider", "DESC"],
+            ["productTitleProvider", "ASC"],
             ["warehouse", "ASC"],
           ],
         });
       else
         products = await Product.findAll({
           order: [
-            ["productTitleProvider", "DESC"],
+            ["productTitleProvider", "ASC"],
             ["warehouse", "ASC"],
           ],
         });
