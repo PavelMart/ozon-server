@@ -39,7 +39,6 @@ const secondSelect = document.getElementById("second-step");
 const articleForUpdateSelect = document.getElementById("article-for-update");
 const mainWarehouseSelect = document.getElementById("main-warehouse");
 const secondWarehousesSelect = document.getElementById("second-warehouses");
-const secondWarehousesLabel = document.getElementById("second-warehouses-label");
 
 const buttonsBlock = document.querySelector(".buttons");
 const getXlsxBtn = document.getElementById("get-xlsx");
@@ -166,7 +165,21 @@ const renderMainWarehouseOptions = () => {
 };
 
 const renderSecondWarehouseOptions = (firstWarehouse) => {
-  renderSelectOptions(secondWarehousesSelect, "warehouse", firstWarehouse);
+  const allOptions = data.map((i) => i["warehouse"]);
+  const uniqueOptions = new Set(allOptions);
+  const options = [...uniqueOptions].filter((i) => i !== firstWarehouse);
+
+  secondWarehousesSelect.innerHTML = `<p style="margin-bottom: 10px">Выберите склады, из которых хотите добавить товары</p>`;
+  secondWarehousesSelect.insertAdjacentHTML(
+    "beforeend",
+    arrayRender(
+      [...options],
+      (o) => `<label>
+              <input type="checkbox" value="${o}"/>
+              ${o}
+            </label>`
+    )
+  );
 };
 
 const render = () => {
@@ -277,12 +290,18 @@ const clearInputs = (form) => {
   [...inputElems].forEach((i) => (i.value = ""));
 };
 
-const postData = async (e, address) => {
+const postData = async (e, address, addDataArray) => {
   e.preventDefault();
 
   deleteSpaces(e.target);
 
   const body = new FormData(e.target);
+
+  if (addDataArray) {
+    addDataArray.forEach((data) => {
+      body.append("second-warehouses", data);
+    });
+  }
 
   closePopup();
   try {
@@ -361,8 +380,10 @@ uploadXlsxForm.addEventListener("submit", async (e) => {
 });
 
 summWarehouseForm.addEventListener("submit", async (e) => {
-  await postData(e, "summ-warehouses");
-  secondWarehousesLabel.style.display = "none";
+  const checkboxes = secondWarehousesSelect.querySelectorAll("input");
+  const checkboxesValues = [...checkboxes].filter((c) => c.checked).map((c) => c.value);
+
+  await postData(e, "summ-warehouses", checkboxesValues);
   secondWarehousesSelect.style.display = "none";
   resetAll();
   render();
@@ -429,8 +450,7 @@ secondSelect.addEventListener("change", (e) => {
 mainWarehouseSelect.addEventListener("change", (e) => {
   firstWarehouse = e.target.value;
   renderSecondWarehouseOptions(firstWarehouse);
-  secondWarehousesSelect.style.display = "block";
-  secondWarehousesLabel.style.display = "block";
+  secondWarehousesSelect.style.display = "flex";
 });
 
 volumeInputs.forEach((i) => {

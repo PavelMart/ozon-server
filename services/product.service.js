@@ -269,10 +269,10 @@ class ProductService {
         where: { warehouse: data["main-warehouse"] },
       });
 
-      // for (let i = 0; i < mainWarehouseArray.length; i++) {}
-
       let entryDataArray = [];
       let secondDataArray = [];
+
+      console.log(data);
 
       if (typeof data["second-warehouses"] === "object") entryDataArray = [...data["second-warehouses"]];
       else entryDataArray.push(data["second-warehouses"]);

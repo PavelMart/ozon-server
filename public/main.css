@@ -236,3 +236,8 @@ button#update-product {
 .buttons button {
   margin-bottom: 10px;
 }
+
+#second-warehouses {
+  display: flex;
+  flex-direction: column;
+}
