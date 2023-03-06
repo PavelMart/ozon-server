@@ -37,7 +37,16 @@ class ProductService {
   }
 
   async createProductsFromArray(array) {
+    const products = await Product.findAll();
+
+    const indexes = [];
+
     for (let index = 0; index < array.length; index++) {
+      products.forEach((product, i) => {
+        if (product.articleNumberOzon === array[index].articleNumberOzon && product.warehouse === array[index].warehouse)
+          indexes.push(product.id);
+      });
+
       const possibleProduct = await Product.findOne({
         where: { articleNumberOzon: array[index].articleNumberOzon, warehouse: array[index].warehouse },
       });
@@ -52,6 +61,24 @@ class ProductService {
 
         await possibleProduct.save();
       }
+    }
+
+    const unchangedProducts = [...products].filter((p) => !indexes.includes(p.id));
+
+    for (let i = 0; i < unchangedProducts.length; i++) {
+      const product = unchangedProducts[i];
+      const zeroData = {
+        productInTransit: "0",
+        availableToSale: "0",
+        reserve: "0",
+      };
+      const calculatedData = this.calculateProductData(product, zeroData);
+      await product.update({
+        ...zeroData,
+        ...calculatedData,
+      });
+      await product.save();
+      console.log(product);
     }
     return;
   }

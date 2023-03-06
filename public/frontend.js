@@ -202,6 +202,7 @@ const resetAll = () => {
   localStorage.removeItem("filterType");
   getXlsxBtn.style.display = "none";
   secondSelect.style.display = "none";
+  firstSelect.value = "empty";
 };
 
 const start = async () => {
