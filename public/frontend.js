@@ -89,7 +89,6 @@ const createDate = () => {
 const calculate = (array) => {
   const atricleItems = array.filter((elem) => elem.checked);
   const articles = new Set(atricleItems.map((elem) => elem.articleNumberOzon));
-  console.log();
   const count = atricleItems.reduce((summ, elem) => summ + +elem.delivery, 0);
   const volume = atricleItems.reduce((summ, elem) => elem.delivery * elem.volume + summ, 0);
 
@@ -320,6 +319,8 @@ const postData = async (e, address, addDataArray) => {
       body,
     });
 
+    if (response.status === 400) return alert(`Что-то пошло не так, ${error.message}`);
+
     data = await response.json();
 
     clearInputs(e.target);
@@ -342,6 +343,8 @@ const getData = async (address) => {
     const response = await fetch(`${config.API_URL}/${address}`);
 
     const json = await response.json();
+
+    if (response.status === 400) return alert(`Что-то пошло не так, ${error.message}`);
 
     if (response.status !== 400 && typeof json === "object") data = json;
 

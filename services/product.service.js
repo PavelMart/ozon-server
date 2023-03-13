@@ -9,7 +9,7 @@ const { unlink } = require("fs");
 class ProductService {
   async createProduct(body, img = null) {
     try {
-      const possibleProduct = await Product.findOne({ where: { articleNumberOzon: body.articleNumberOzon } });
+      const possibleProduct = await Product.findOne({ where: { articleNumberOzon: body.articleNumberOzon, warehouse: body.warehouse } });
 
       if (possibleProduct) {
         throw new Error("Такой товар уже существует");
