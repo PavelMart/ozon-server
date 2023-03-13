@@ -288,6 +288,7 @@ class ProductService {
           order: [
             ["productTitleProvider", "ASC"],
             ["warehouse", "ASC"],
+            ["articleNumberOzon", "ASC"],
           ],
         });
       else
@@ -295,6 +296,7 @@ class ProductService {
           order: [
             ["productTitleProvider", "ASC"],
             ["warehouse", "ASC"],
+            ["articleNumberOzon", "ASC"],
           ],
         });
 
