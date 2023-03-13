@@ -78,7 +78,6 @@ class ProductService {
         ...calculatedData,
       });
       await product.save();
-      console.log(product);
     }
     return;
   }
@@ -173,17 +172,17 @@ class ProductService {
     try {
       const product = await Product.findOne({ where: { id } });
 
-      if (product.img !== "") {
-        const oldImgPath = path.join(__dirname, "..", "public", `${product.img}`);
-
-        unlink(oldImgPath, (err) => {
-          if (err) console.log(err);
-        });
-      }
-
       let fullName = "";
 
       if (img) {
+        if (product.img !== "") {
+          const oldImgPath = path.join(__dirname, "..", "public", `${product.img}`);
+
+          unlink(oldImgPath, (err) => {
+            if (err) console.log(err);
+          });
+        }
+
         const ext = img.name.split(".").pop();
         fullName = `${uuid.v4()}.${ext}`;
 
@@ -210,17 +209,17 @@ class ProductService {
       const products = await Product.findAll({ where: { articleNumberOzon: data["article-for-update"] } });
 
       for (let i = 0; i < products.length; i++) {
-        if (products[i].img !== "") {
-          const oldImgPath = path.join(__dirname, "..", "public", `${products[i].img}`);
-
-          unlink(oldImgPath, (err) => {
-            if (err) console.log(err);
-          });
-        }
-
         let fullName = "";
 
         if (img) {
+          if (products[i].img !== "") {
+            const oldImgPath = path.join(__dirname, "..", "public", `${products[i].img}`);
+
+            unlink(oldImgPath, (err) => {
+              if (err) console.log(err);
+            });
+          }
+
           const ext = img.name.split(".").pop();
           fullName = `${uuid.v4()}.${ext}`;
 
@@ -306,8 +305,6 @@ class ProductService {
       let entryDataArray = [];
       let secondDataArray = [];
 
-      console.log(data);
-
       if (typeof data["second-warehouses"] === "object") entryDataArray = [...data["second-warehouses"]];
       else entryDataArray.push(data["second-warehouses"]);
 
@@ -337,6 +334,7 @@ class ProductService {
         await mainWarehouseArray[i].update({ ...calculatedData });
         await mainWarehouseArray[i].save();
       }
+
       return;
     } catch (error) {
       throw ApiError.BadRequest(error.message);
