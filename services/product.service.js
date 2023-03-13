@@ -17,6 +17,12 @@ class ProductService {
 
       const delivery = +body.minimum;
 
+      const boxesCount = Math.floor(delivery / body.numberInBox);
+
+      const fullDelivery = boxesCount * body.numberInBox;
+
+      if (fullDelivery < delivery) fullDelivery = (boxesCount + 1) * body.numberInBox;
+
       let fullName = "";
 
       if (img) {
@@ -28,7 +34,7 @@ class ProductService {
         await img.mv(filePath);
       }
 
-      await Product.create({ ...body, img: fullName, delivery, checked: true });
+      await Product.create({ ...body, img: fullName, delivery: fullDelivery, checked: true });
 
       return;
     } catch (error) {
