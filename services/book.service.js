@@ -59,7 +59,7 @@ class BookService {
 
       return;
     } catch (error) {
-      throw ApiError.BadRequest(error.message);
+      throw ApiError.BadRequest(`BookService: createBook: ${error.message}`);
     }
   }
 
@@ -111,7 +111,7 @@ class BookService {
 
       return products;
     } catch (error) {
-      throw ApiError.BadRequest(error.message);
+      throw ApiError.BadRequest(`BookService: readBook: ${error.message}`);
     }
   }
 
@@ -123,7 +123,7 @@ class BookService {
       });
       return;
     } catch (error) {
-      throw ApiError.BadRequest(error.message);
+      throw ApiError.BadRequest(`BookService: deleteBook: ${error.message}`);
     }
   }
 }

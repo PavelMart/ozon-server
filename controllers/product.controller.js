@@ -15,7 +15,7 @@ class ProductController {
 
       return res.json(products);
     } catch (error) {
-      return next(ApiError.BadRequest(error.message));
+      return next(ApiError.BadRequest(`ProductController: createProduct: ${error.message}`));
     }
   }
 
@@ -33,7 +33,7 @@ class ProductController {
       const products = await productService.getProducts();
       return res.json(products);
     } catch (error) {
-      return next(ApiError.BadRequest(error.message));
+      return next(ApiError.BadRequest(`ProductController: updateProduct: ${error.message}`));
     }
   }
 
@@ -48,7 +48,7 @@ class ProductController {
       const products = await productService.getProducts();
       return res.json(products);
     } catch (error) {
-      return next(ApiError.BadRequest(error.message));
+      return next(ApiError.BadRequest(`ProductController: updateArticles: ${error.message}`));
     }
   }
 
@@ -58,7 +58,7 @@ class ProductController {
       const products = await productService.getProducts();
       return res.json(products);
     } catch (error) {
-      return next(ApiError.BadRequest(error.message));
+      return next(ApiError.BadRequest(`ProductController: updateChecked: ${error.message}`));
     }
   }
 
@@ -68,7 +68,7 @@ class ProductController {
       const products = await productService.getProducts();
       return res.json(products);
     } catch (error) {
-      return next(ApiError.BadRequest(error.message));
+      return next(ApiError.BadRequest(`ProductController: updateDelivery: ${error.message}`));
     }
   }
 
@@ -78,7 +78,7 @@ class ProductController {
       const products = await productService.getProducts();
       return res.json(products);
     } catch (error) {
-      return next(ApiError.BadRequest(error.message));
+      return next(ApiError.BadRequest(`ProductController: uploadFromOzon: ${error.message}`));
     }
   }
 
@@ -87,7 +87,7 @@ class ProductController {
       const products = await productService.getProducts();
       return res.json(products);
     } catch (error) {
-      return next(ApiError.BadRequest(error.message));
+      return next(ApiError.BadRequest(`ProductController: getAll: ${error.message}`));
     }
   }
 
@@ -97,7 +97,7 @@ class ProductController {
       const products = await bookService.readBook(xlsx);
       return res.json(products);
     } catch (error) {
-      return next(ApiError.BadRequest(error.message));
+      return next(ApiError.BadRequest(`ProductController: uploadXlsx: ${error.message}`));
     }
   }
 
@@ -108,7 +108,7 @@ class ProductController {
       const products = await productService.getProducts();
       return res.json(products);
     } catch (error) {
-      return next(ApiError.BadRequest(error.message));
+      return next(ApiError.BadRequest(`ProductController: summWarehouses: ${error.message}`));
     }
   }
 }

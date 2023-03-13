@@ -12,12 +12,16 @@ class ApiKeyService {
       }
       return;
     } catch (error) {
-      throw ApiError.BadRequest(error.message);
+      throw ApiError.BadRequest(`ApiKeyService: updateApiKey: ${error.message}`);
     }
   }
 
   async getApiKey() {
-    return await ApiKey.findOne({ where: { id: 1 } });
+    try {
+      return await ApiKey.findOne({ where: { id: 1 } });
+    } catch (error) {
+      throw ApiError.BadRequest(`ApiKeyService: getApiKey: ${error.message}`);
+    }
   }
 }
 

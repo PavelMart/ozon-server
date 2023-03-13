@@ -9,7 +9,7 @@ class ApiController {
       await apiService.updateApiKey(key);
       return res.json("ok");
     } catch (error) {
-      return next(ApiError.BadRequest(error.message));
+      return next(ApiError.BadRequest(`ApiController: updateApiKey: ${error.message}`));
     }
   }
 }

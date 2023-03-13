@@ -8,7 +8,7 @@ class BookController {
       await bookService.createBook({ filterType, filterValue });
       return res.json("Отчет сформирован");
     } catch (error) {
-      return next(ApiError.BadRequest(error.message));
+      return next(ApiError.BadRequest(`BookController: createBook: ${error.message}`));
     }
   }
 
@@ -18,7 +18,7 @@ class BookController {
       bookService.deleteBook(name);
       return res.json("Отчет удален с сервера");
     } catch (error) {
-      return next(ApiError.BadRequest(error.message));
+      return next(ApiError.BadRequest(`BookController: deleteBook: ${error.message}`));
     }
   }
 }

@@ -32,86 +32,94 @@ class ProductService {
 
       return;
     } catch (error) {
-      throw ApiError.BadRequest(error.message);
+      throw ApiError.BadRequest(`ProductService: createProduct: ${error.message}`);
     }
   }
 
   async createProductsFromArray(array) {
-    const products = await Product.findAll();
+    try {
+      const products = await Product.findAll();
 
-    const indexes = [];
+      const indexes = [];
 
-    for (let index = 0; index < array.length; index++) {
-      products.forEach((product, i) => {
-        if (product.articleNumberOzon === array[index].articleNumberOzon && product.warehouse === array[index].warehouse)
-          indexes.push(product.id);
-      });
+      for (let index = 0; index < array.length; index++) {
+        products.forEach((product, i) => {
+          if (product.articleNumberOzon === array[index].articleNumberOzon && product.warehouse === array[index].warehouse)
+            indexes.push(product.id);
+        });
 
-      const possibleProduct = await Product.findOne({
-        where: { articleNumberOzon: array[index].articleNumberOzon, warehouse: array[index].warehouse },
-      });
+        const possibleProduct = await Product.findOne({
+          where: { articleNumberOzon: array[index].articleNumberOzon, warehouse: array[index].warehouse },
+        });
 
-      if (!possibleProduct) {
-        const calculatedData = this.calculateProductData(possibleProduct, array[index]);
-        await Product.create({ ...array[index], ...calculatedData });
-      } else {
-        const calculatedData = this.calculateProductData(possibleProduct, array[index]);
+        if (!possibleProduct) {
+          const calculatedData = this.calculateProductData(possibleProduct, array[index]);
+          await Product.create({ ...array[index], ...calculatedData });
+        } else {
+          const calculatedData = this.calculateProductData(possibleProduct, array[index]);
 
-        await possibleProduct.update({ ...array[index], ...calculatedData });
+          await possibleProduct.update({ ...array[index], ...calculatedData });
 
-        await possibleProduct.save();
+          await possibleProduct.save();
+        }
       }
-    }
 
-    const unchangedProducts = [...products].filter((p) => !indexes.includes(p.id));
+      const unchangedProducts = [...products].filter((p) => !indexes.includes(p.id));
 
-    for (let i = 0; i < unchangedProducts.length; i++) {
-      const product = unchangedProducts[i];
-      const zeroData = {
-        productInTransit: "0",
-        availableToSale: "0",
-        reserve: "0",
-      };
-      const calculatedData = this.calculateProductData(product, zeroData);
-      await product.update({
-        ...zeroData,
-        ...calculatedData,
-      });
-      await product.save();
+      for (let i = 0; i < unchangedProducts.length; i++) {
+        const product = unchangedProducts[i];
+        const zeroData = {
+          productInTransit: "0",
+          availableToSale: "0",
+          reserve: "0",
+        };
+        const calculatedData = this.calculateProductData(product, zeroData);
+        await product.update({
+          ...zeroData,
+          ...calculatedData,
+        });
+        await product.save();
+      }
+      return;
+    } catch (error) {
+      throw ApiError.BadRequest(`ProductService: createProductsFromArray: ${error.message}`);
     }
-    return;
   }
 
   async createProductsFromOzon() {
-    const { key } = await apiService.getApiKey();
-    const instance = axios.create({
-      headers: {
-        "Client-Id": "576811",
-        "Api-Key": key,
-        "Content-Type": "application/json",
-      },
-    });
-    const response = await instance.post("https://api-seller.ozon.ru/v2/analytics/stock_on_warehouses", {
-      limit: 1000,
-      offset: 0,
-      warehouse_type: "ALL",
-    });
+    try {
+      const { key } = await apiService.getApiKey();
+      const instance = axios.create({
+        headers: {
+          "Client-Id": "576811",
+          "Api-Key": key,
+          "Content-Type": "application/json",
+        },
+      });
+      const response = await instance.post("https://api-seller.ozon.ru/v2/analytics/stock_on_warehouses", {
+        limit: 1000,
+        offset: 0,
+        warehouse_type: "ALL",
+      });
 
-    const productsFromOzon = response.data.result.rows;
+      const productsFromOzon = response.data.result.rows;
 
-    const array = productsFromOzon.map((elem) => ({
-      SKU: elem.sku,
-      warehouse: elem.warehouse_name,
-      articleNumberOzon: elem.item_code,
-      productTitleOzon: elem.item_name,
-      productInTransit: elem.promised_amount,
-      availableToSale: elem.free_to_sell_amount,
-      reserve: elem.reserved_amount,
-    }));
+      const array = productsFromOzon.map((elem) => ({
+        SKU: elem.sku,
+        warehouse: elem.warehouse_name,
+        articleNumberOzon: elem.item_code,
+        productTitleOzon: elem.item_name,
+        productInTransit: elem.promised_amount,
+        availableToSale: elem.free_to_sell_amount,
+        reserve: elem.reserved_amount,
+      }));
 
-    await this.createProductsFromArray(array);
+      await this.createProductsFromArray(array);
 
-    return;
+      return;
+    } catch (error) {
+      throw ApiError.BadRequest(`ProductService: createProductsFromOzon: ${error.message}`);
+    }
   }
 
   calculateProductData(product, obj) {
@@ -200,7 +208,7 @@ class ProductService {
 
       return;
     } catch (error) {
-      throw ApiError.BadRequest(error.message);
+      throw ApiError.BadRequest(`ProductService: updateProduct: ${error.message}`);
     }
   }
 
@@ -238,7 +246,7 @@ class ProductService {
 
       return;
     } catch (error) {
-      throw ApiError.BadRequest(error.message);
+      throw ApiError.BadRequest(`ProductService: updateArticles: ${error.message}`);
     }
   }
 
@@ -252,7 +260,7 @@ class ProductService {
 
       return;
     } catch (error) {
-      throw ApiError.BadRequest(error.message);
+      throw ApiError.BadRequest(`ProductService: updateChecked: ${error.message}`);
     }
   }
 
@@ -266,7 +274,7 @@ class ProductService {
 
       return;
     } catch (error) {
-      throw ApiError.BadRequest(error.message);
+      throw ApiError.BadRequest(`ProductService: updateDelivery: ${error.message}`);
     }
   }
 
@@ -292,7 +300,7 @@ class ProductService {
 
       return products;
     } catch (error) {
-      throw ApiError.BadRequest(error.message);
+      throw ApiError.BadRequest(`ProductService: getProducts: ${error.message}`);
     }
   }
 
@@ -337,7 +345,7 @@ class ProductService {
 
       return;
     } catch (error) {
-      throw ApiError.BadRequest(error.message);
+      throw ApiError.BadRequest(`ProductService: summWarehouses: ${error.message}`);
     }
   }
 }
