@@ -5,6 +5,7 @@ const { default: axios } = require("axios");
 const ApiError = require("../api/ApiError");
 const apiService = require("./api.service");
 const { unlink } = require("fs");
+const Warehouse = require("../models/warehouse.model");
 
 class ProductService {
   async createProduct(body, img = null) {
@@ -89,6 +90,17 @@ class ProductService {
       return;
     } catch (error) {
       throw ApiError.BadRequest(`ProductService: createProductsFromArray: ${error.message}`);
+    }
+  }
+
+  async getOldBD() {
+    try {
+      const response = await axios.get("http://141.8.193.46/api");
+      const array = response.data;
+      await this.createProductsFromArray(array);
+      return;
+    } catch (error) {
+      throw ApiError.BadRequest(`ProductService: getOldBD: ${error.message}`);
     }
   }
 
@@ -312,44 +324,73 @@ class ProductService {
     }
   }
 
-  async summWarehouses(data) {
+  async mergeWarehouses(data) {
     try {
-      const mainWarehouseArray = await Product.findAll({
-        where: { warehouse: data["main-warehouse"] },
+      let warehouse = await Warehouse.findOne({
+        where: { title: data["main-warehouse"] },
       });
 
-      let entryDataArray = [];
-      let secondDataArray = [];
-
-      if (typeof data["second-warehouses"] === "object") entryDataArray = [...data["second-warehouses"]];
-      else entryDataArray.push(data["second-warehouses"]);
-
-      for (let i = 0; i < entryDataArray.length; i++) {
-        const currentWarehouses = await Product.findAll({ where: { warehouse: entryDataArray[i] } });
-
-        secondDataArray.push(...currentWarehouses);
+      if (!warehouse) {
+        warehouse = await Warehouse.create({ title: data["main-warehouse"] });
       }
 
-      for (let i = 0; i < mainWarehouseArray.length; i++) {
-        for (let j = 0; j < secondDataArray.length; j++) {
-          if (mainWarehouseArray[i].articleNumberOzon === secondDataArray[j].articleNumberOzon) {
-            await mainWarehouseArray[i].update({
-              productInTransit: +secondDataArray[j].productInTransit + +mainWarehouseArray[i].productInTransit,
-              availableToSale: +secondDataArray[j].availableToSale + +mainWarehouseArray[i].availableToSale,
-              reserve: +secondDataArray[j].reserve + +mainWarehouseArray[i].reserve,
-              fullCount: +secondDataArray[j].fullCount + +mainWarehouseArray[i].fullCount,
-              delivery: +secondDataArray[j].delivery + +mainWarehouseArray[i].delivery,
-            });
-            await Product.destroy({ where: { id: secondDataArray[j].id } });
-          } else {
-            await secondDataArray[j].update({ warehouse: mainWarehouseArray[i].warehouse });
-            await secondDataArray[j].save();
-          }
-        }
-        const calculatedData = this.calculateProductDataV2(mainWarehouseArray[i], mainWarehouseArray[i]);
-        await mainWarehouseArray[i].update({ ...calculatedData });
-        await mainWarehouseArray[i].save();
+      const includes = [];
+
+      if (typeof data["second-warehouses"] === "object") includes.push(...data["second-warehouses"]);
+      else includes.push(data["second-warehouses"]);
+
+      await warehouse.update({ includes: [...warehouse.includes, ...includes] });
+      await warehouse.save();
+
+      await this.summWarehouses(warehouse);
+
+      return await Warehouse.findAll();
+    } catch (error) {
+      throw ApiError.BadRequest(`ProductService: mergeWarehouses: ${error.message}`);
+    }
+  }
+
+  async summWarehouses({ title, includes }) {
+    try {
+      const mainWarehouseProducts = await Product.findAll({
+        where: { warehouse: title },
+      });
+
+      const includedWarehousesProducts = [];
+
+      for (let i = 0; i < includes.length; i++) {
+        const products = await Product.findAll({ where: { warehouse: includes[i] } });
+
+        includedWarehousesProducts.push(...products);
       }
+
+      for (let i = 0; i < mainWarehouseProducts.length; i++) {
+        const product = includedWarehousesProducts.find(
+          (product) => product.articleNumberOzon === mainWarehouseProducts[i].articleNumberOzon
+        );
+      }
+
+      // for (let i = 0; i < mainWarehouseProducts.length; i++) {
+      //   for (let j = 0; j < includedWarehousesProducts.length; j++) {
+      //     if (mainWarehouseArray[i].articleNumberOzon === secondDataArray[j].articleNumberOzon) {
+      //       await mainWarehouseArray[i].update({
+      //         productInTransit: +secondDataArray[j].productInTransit + +mainWarehouseArray[i].productInTransit,
+      //         availableToSale: +secondDataArray[j].availableToSale + +mainWarehouseArray[i].availableToSale,
+      //         reserve: +secondDataArray[j].reserve + +mainWarehouseArray[i].reserve,
+      //         fullCount: +secondDataArray[j].fullCount + +mainWarehouseArray[i].fullCount,
+      //         delivery: +secondDataArray[j].delivery + +mainWarehouseArray[i].delivery,
+      //       });
+      //       await secondDataArray[j].update({ disabled: true });
+      //       await secondDataArray[j].save();
+      //     } else {
+      //       const calculatedData = this.calculateProductDataV2(secondDataArray[j], secondDataArray[j]);
+      //       await Product.create({ ...secondDataArray[j], ...calculatedData });
+      //     }
+      //   }
+      //   const calculatedData = this.calculateProductDataV2(mainWarehouseArray[i], mainWarehouseArray[i]);
+      //   await mainWarehouseArray[i].update({ ...calculatedData });
+      //   await mainWarehouseArray[i].save();
+      // }
 
       return;
     } catch (error) {

@@ -104,11 +104,23 @@ class ProductController {
   async summWarehouses(req, res, next) {
     try {
       const body = req.body;
-      await productService.summWarehouses(body);
+      const warehouses = await productService.mergeWarehouses(body);
+
+      console.log(warehouses);
       const products = await productService.getProducts();
       return res.json(products);
     } catch (error) {
       return next(ApiError.BadRequest(`ProductController: summWarehouses: ${error.message}`));
+    }
+  }
+
+  async getOldBD(req, res, next) {
+    try {
+      await productService.getOldBD();
+      const products = await productService.getProducts();
+      return res.json(products);
+    } catch (error) {
+      return next(ApiError.BadRequest(`ProductController: getOldBD: ${error.message}`));
     }
   }
 }
